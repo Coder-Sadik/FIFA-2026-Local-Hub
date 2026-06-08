@@ -40,7 +40,7 @@ export default async function MatchDetailsPage({ params }: { params: { matchId: 
               {isFinished || isLive ? `${game.home_score} - ${game.away_score}` : 'VS'}
             </div>
             <div className="text-muted-foreground font-medium mt-4">
-              <LocalTime dateString={game.local_date} format="long" />
+              <LocalTime date={game.local_date} format="long" stadiumId={game.stadium_id} />
             </div>
           </div>
 

@@ -63,9 +63,9 @@ export function MatchCard({ game }: MatchCardProps) {
             <span className="text-xs text-muted-foreground font-medium">Group {game.group}</span>
           </div>
           <div className="text-sm font-medium text-muted-foreground flex items-center">
-            <LocalTime dateString={game.local_date} format="short" />
-            <span className="mx-1">•</span>
-            <LocalTime dateString={game.local_date} format="time" />
+            <LocalTime date={game.local_date} format="short" stadiumId={game.stadium_id} />
+            <span className="text-muted-foreground mx-1">•</span>
+            <LocalTime date={game.local_date} format="time" stadiumId={game.stadium_id} />
           </div>
         </div>
 
