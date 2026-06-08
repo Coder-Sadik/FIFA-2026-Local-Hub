@@ -7,10 +7,11 @@ import { buttonVariants } from '../ui/button';
 import Link from 'next/link';
 import { LocalTime } from '../ui/local-time';
 import { usePreferences } from '@/store/usePreferences';
-import { Star } from 'lucide-react';
+import { Star, MapPin } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useState, useEffect } from 'react';
 import { getCountryColor, getFlagUrl } from '@/lib/countries';
+import { getStadiumName } from '@/lib/stadiums';
 
 interface MatchCardProps {
   game: Game;
@@ -110,8 +111,11 @@ export function MatchCard({ game }: MatchCardProps) {
         </div>
 
         <div className="mt-4 pt-4 border-t text-xs text-muted-foreground flex justify-between items-center">
-          <span>Stadium ID: {game.stadium_id}</span>
-          <Link href={`/match/${game.id}`} className={buttonVariants({ variant: "link", className: "p-0 h-auto text-primary" })}>Match Details →</Link>
+          <span className="truncate pr-4 max-w-[200px] flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5" /> 
+            {getStadiumName(game.stadium_id)}
+          </span>
+          <Link href={`/match/${game.id}`} className={buttonVariants({ variant: "link", className: "p-0 h-auto text-primary shrink-0" })}>Match Details →</Link>
         </div>
       </CardContent>
     </Card>
