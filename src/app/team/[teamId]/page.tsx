@@ -1,8 +1,9 @@
 import { getTeams, getGames, getGroups } from '@/lib/api/worldcup26';
+import { getTeamDetails } from '@/lib/api/thestatsapi';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MatchCard } from '@/components/features/MatchCard';
-import { Star } from 'lucide-react';
+import { Star, MapPin, Calendar, User, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getFlagUrl, getCountryColor } from '@/lib/countries';
 
@@ -11,6 +12,11 @@ export default async function TeamPage({ params }: { params: { teamId: string } 
   
   const team = teams.find(t => t.id === params.teamId);
   if (!team) notFound();
+
+  // Fetch external details from thestatsapi
+  const externalDetailsRes = await getTeamDetails(team.name_en);
+  const externalTeam = externalDetailsRes?.data?.[0] || externalDetailsRes?.response?.[0] || null;
+
 
   const teamGames = games.filter(g => g.home_team_id === team.id || g.away_team_id === team.id);
   
@@ -92,6 +98,46 @@ export default async function TeamPage({ params }: { params: { teamId: string } 
               )}
             </CardContent>
           </Card>
+
+          {/* External Details Card */}
+          {externalTeam && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Team Profile</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {externalTeam.founded && (
+                    <div className="flex items-center gap-3 border-b pb-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Founded</p>
+                        <p className="text-sm font-semibold">{externalTeam.founded}</p>
+                      </div>
+                    </div>
+                  )}
+                  {(externalTeam.manager || externalTeam.coach) && (
+                    <div className="flex items-center gap-3 border-b pb-2">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Manager</p>
+                        <p className="text-sm font-semibold">{externalTeam.manager || externalTeam.coach}</p>
+                      </div>
+                    </div>
+                  )}
+                  {(externalTeam.venue || externalTeam.stadium) && (
+                    <div className="flex items-center gap-3 border-b pb-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Home Venue</p>
+                        <p className="text-sm font-semibold">{externalTeam.venue || externalTeam.stadium}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right Column: Fixtures */}

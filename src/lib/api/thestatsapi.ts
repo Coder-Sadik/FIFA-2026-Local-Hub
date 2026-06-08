@@ -21,3 +21,29 @@ export async function getLiveMatchResults() {
 
   return await res.json();
 }
+
+export async function getTeamDetails(teamName: string) {
+  const token = process.env.THESTATSAPI_TOKEN || 'fapi_DhIuRDEAjKBZ4vWXSHrcEebfukeIEnZg';
+  
+  try {
+    const res = await fetch(`https://api.thestatsapi.com/api/football/teams?search=${encodeURIComponent(teamName)}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      next: {
+        revalidate: 3600 * 24 // Cache for 24 hours to reduce cost for static team details
+      }
+    });
+
+    if (!res.ok) {
+      console.warn(`thestatsapi returned ${res.status} for team ${teamName}`);
+      return null;
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching team details:', error);
+    return null;
+  }
+}
