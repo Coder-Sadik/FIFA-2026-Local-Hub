@@ -35,18 +35,18 @@ const getFeederIds = (game: Game): [string | null, string | null] => {
   return [homeMatchId, awayMatchId];
 };
 
-const getSubtreeIds = (rootId: string, allGames: Game[]): Set<string> => {
-  const ids = new Set<string>();
-  const traverse = (currentId: string) => {
-    ids.add(currentId);
+const buildColumnOrder = (rootId: string, allGames: Game[]) => {
+  const columns: Game[][] = [[], [], [], []]; // [SF, QF, R16, R32]
+  const traverse = (currentId: string, depth: number) => {
     const game = allGames.find(g => g.id === currentId);
     if (!game) return;
     const [h, a] = getFeederIds(game);
-    if (h) traverse(h);
-    if (a) traverse(a);
+    if (h) traverse(h, depth + 1);
+    if (a) traverse(a, depth + 1);
+    columns[depth].push(game);
   };
-  traverse(rootId);
-  return ids;
+  traverse(rootId, 0);
+  return columns;
 };
 
 const MatchBox = ({ game, side = 'left', isFinal = false, roundIndex = 0 }: { game: Game, side?: 'left' | 'right', isFinal?: boolean, roundIndex?: number }) => {
