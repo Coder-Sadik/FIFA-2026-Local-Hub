@@ -83,8 +83,8 @@ export function LiveTVClient() {
           }
         }
         
-        // Remove duplicates and sort
-        const uniqueChannels = Array.from(new Map(parsed.map(item => [item.name, item])).values())
+        // Remove duplicates by id and sort by name
+        const uniqueChannels = Array.from(new Map(parsed.map(item => [item.id, item])).values())
             .filter(c => c.name && c.url)
             .sort((a, b) => a.name.localeCompare(b.name));
             
