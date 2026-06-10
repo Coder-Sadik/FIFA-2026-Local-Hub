@@ -70,7 +70,7 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
 
       return true;
     });
-  }, [initialGames, search, groupFilter, statusFilter]);
+  }, [initialGames, search, groupFilter, statusFilter, showFavorites, favoriteTeams, mounted]);
 
   const uniqueGroups = Array.from(new Set(initialGames.map(g => g.group))).sort();
 
@@ -78,14 +78,23 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
     <div className="space-y-8">
       {/* Filters Bar */}
       <div className="bg-muted/30 p-4 rounded-xl border flex flex-col md:flex-row gap-4">
-        <div className="flex-1" suppressHydrationWarning>
+        <div className="flex-1 relative" suppressHydrationWarning>
           <Input 
             placeholder="Search teams, groups, or venues..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-background"
+            className="w-full bg-background pr-10"
             suppressHydrationWarning
           />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted transition-colors"
+              aria-label="Clear search"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          )}
         </div>
         
         <Select value={groupFilter} onValueChange={(val) => val && setGroupFilter(val)}>

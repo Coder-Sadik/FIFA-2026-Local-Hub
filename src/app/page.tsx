@@ -28,7 +28,7 @@ export default async function Home() {
             The ultimate hub for live scores, fixtures, and group standings across all 104 matches.
           </p>
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/fixtures" className={buttonVariants({ size: "lg", className: "bg-emerald-600 hover:bg-emerald-500 text-white font-bold w-full sm:w-auto" })}>
+            <Link href="/fixtures" className={buttonVariants({ size: "lg", className: "bg-primary hover:bg-primary/90 text-primary-foreground font-bold w-full sm:w-auto" })}>
               View All Fixtures <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <Link href="/standings" className={buttonVariants({ size: "lg", variant: "outline", className: "w-full sm:w-auto bg-white/10 backdrop-blur border-white/20 hover:bg-white/20 text-white" })}>
