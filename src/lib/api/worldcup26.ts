@@ -22,8 +22,7 @@ export async function getTeams(): Promise<Team[]> {
   return data.teams || [];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getStadiums(): Promise<any[]> {
+export async function getStadiums(): Promise<unknown[]> {
   const res = await fetch(`${BASE_URL}/stadiums`, {
     next: { revalidate: 3600 * 24 * 7 }, // Weekly
   });
@@ -32,8 +31,7 @@ export async function getStadiums(): Promise<any[]> {
   return data.stadiums || [];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getGroups(): Promise<any[]> {
+export async function getGroups(): Promise<unknown[]> {
   const res = await fetch(`${BASE_URL}/groups`, {
     next: { revalidate: 3600 },
   });

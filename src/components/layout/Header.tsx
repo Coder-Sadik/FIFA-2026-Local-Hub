@@ -46,30 +46,11 @@ export function Header() {
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link
-              href="/fixtures"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Fixtures
-            </Link>
-            <Link
-              href="/live"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Live
-            </Link>
-            <Link
-              href="/standings"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Standings
-            </Link>
-            <Link
-              href="/teams"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Teams
-            </Link>
+            <Link href="/fixtures" className="transition-colors hover:text-foreground/80 text-foreground/60">Fixtures</Link>
+            <Link href="/live" className="transition-colors hover:text-foreground/80 text-foreground/60">Live</Link>
+            <Link href="/standings" className="transition-colors hover:text-foreground/80 text-foreground/60">Standings</Link>
+            <Link href="/teams" className="transition-colors hover:text-foreground/80 text-foreground/60">Teams</Link>
+            <Link href="/bracket" className="transition-colors hover:text-foreground/80 text-primary font-semibold">Bracket</Link>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
