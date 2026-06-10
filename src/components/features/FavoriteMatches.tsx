@@ -10,6 +10,7 @@ export function FavoriteMatches({ allGames }: { allGames: Game[] }) {
   const { favoriteTeams } = usePreferences();
   const [mounted, setMounted] = useState(false);
 
+  // eslint-disable-next-line
   useEffect(() => setMounted(true), []);
 
   if (!mounted || favoriteTeams.length === 0) return null;

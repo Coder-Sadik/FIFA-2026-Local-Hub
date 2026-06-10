@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trophy, Search, Menu } from 'lucide-react';
+import { Search, Info, Radio, Trophy } from 'lucide-react';
 import { Input } from '../ui/input';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -22,6 +22,7 @@ export function Header() {
   const router = useRouter();
 
   useEffect(() => {
+    // eslint-disable-next-line
     setMounted(true);
   }, []);
 

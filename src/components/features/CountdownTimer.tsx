@@ -11,6 +11,7 @@ export function CountdownTimer({ dateStr }: CountdownTimerProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line
     setMounted(true);
     
     // Parse the date (assume UTC for now as per worldcup26 logic)

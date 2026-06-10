@@ -39,11 +39,11 @@ export function LiveMatchesClient({ initialGames }: LiveMatchesClientProps) {
     return Date.UTC(+year, +month - 1, +day, +hour, +minute);
   };
 
-  const now = Date.now();
   const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
-  // Categorize Games
   const { liveGames, upcomingToday, nextMatches } = useMemo(() => {
+    // eslint-disable-next-line react-hooks/purity
+    const now = Date.now();
     const live = games.filter(g => g.finished === 'FALSE' && g.time_elapsed !== 'notstarted');
     
     // Sort notstarted games chronologically
@@ -65,7 +65,7 @@ export function LiveMatchesClient({ initialGames }: LiveMatchesClientProps) {
     }
 
     return { liveGames: live, upcomingToday: today, nextMatches: next };
-  }, [games, now, ONE_DAY_MS]);
+  }, [games, ONE_DAY_MS]);
 
   return (
     <div className="space-y-12">

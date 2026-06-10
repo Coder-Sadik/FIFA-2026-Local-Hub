@@ -3,7 +3,7 @@ import { getTeamIdByName, getTeamDetails, getTeamPlayers } from '@/lib/api/thesp
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MatchCard } from '@/components/features/MatchCard';
-import { Star, MapPin, Calendar, Users, Info, User } from 'lucide-react';
+import { Star, MapPin, Users, Info, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getFlagUrl, getCountryColor } from '@/lib/countries';
 import Link from 'next/link';

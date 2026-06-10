@@ -18,7 +18,7 @@ export default async function LivePage() {
           Live Action
         </h1>
         <p className="text-muted-foreground mt-4 text-lg">
-          Follow matches in real-time, or see exactly what's kicking off next.
+          Follow matches in real-time, or see exactly what&apos;s kicking off next.
         </p>
       </div>
 

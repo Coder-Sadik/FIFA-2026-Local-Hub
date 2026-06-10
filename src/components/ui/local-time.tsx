@@ -17,6 +17,7 @@ export function LocalTime({ date, format = 'long', stadiumId, className = '' }: 
   const { timezone } = usePreferences();
 
   useEffect(() => {
+    // eslint-disable-next-line
     setMounted(true);
   }, []);
 

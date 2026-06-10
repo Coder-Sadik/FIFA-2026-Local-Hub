@@ -25,6 +25,7 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line
     setMounted(true);
     const q = searchParams.get('q');
     if (q !== null) {

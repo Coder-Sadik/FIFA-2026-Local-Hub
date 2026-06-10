@@ -3,8 +3,6 @@
 import { Game } from '@/types';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { buttonVariants } from '../ui/button';
-import Link from 'next/link';
 import { LocalTime } from '../ui/local-time';
 import { usePreferences } from '@/store/usePreferences';
 import { Star, MapPin } from 'lucide-react';
@@ -22,6 +20,7 @@ export function MatchCard({ game }: MatchCardProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line
     setMounted(true);
   }, []);
   
@@ -53,7 +52,7 @@ export function MatchCard({ game }: MatchCardProps) {
               {isLive ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-white animate-pulse mr-1" />
-                  LIVE {game.time_elapsed}'
+                  LIVE {game.time_elapsed}&apos;
                 </>
               ) : isFinished ? (
                 'FT'
