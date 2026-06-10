@@ -2,7 +2,7 @@ import { getGames } from '@/lib/api/worldcup26';
 import { MatchCard } from '@/components/features/MatchCard';
 import { FavoriteMatches } from '@/components/features/FavoriteMatches';
 import Link from 'next/link';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { ArrowRight, Activity } from 'lucide-react';
 
 export default async function Home() {

@@ -22,7 +22,7 @@ export function getAbsoluteGameDate(localDateStr: string | Date, stadiumId?: str
     
     const isoString = `${year}-${month}-${day}T${timePart}:00${offsetString}`;
     return new Date(isoString);
-  } catch (e) {
+  } catch {
     return new Date(localDateStr);
   }
 }
@@ -65,7 +65,7 @@ export function formatToLocalTime(
 
   try {
     return new Intl.DateTimeFormat('en-US', options).format(date);
-  } catch (e) {
+  } catch {
     // Fallback if timezone is somehow invalid
     return new Intl.DateTimeFormat('en-US').format(date);
   }

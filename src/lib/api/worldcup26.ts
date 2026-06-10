@@ -1,4 +1,4 @@
-import { Game, Team, Stadium } from '@/types';
+import { Game, Team } from '@/types';
 
 const BASE_URL = 'https://worldcup26.ir/get';
 

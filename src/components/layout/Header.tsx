@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Info, Radio, Trophy, Clock } from 'lucide-react';
+import { Search, Trophy, Clock } from 'lucide-react';
 import { Input } from '../ui/input';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';

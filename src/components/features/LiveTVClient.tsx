@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Hls from 'hls.js';
-import { Play, Loader2, Tv, AlertCircle, Volume2 } from 'lucide-react';
+import { Loader2, Tv, AlertCircle, Volume2 } from 'lucide-react';
 
 interface IPTVChannel {
   id: string;
@@ -92,7 +92,7 @@ export function LiveTVClient() {
         if (uniqueChannels.length > 0) {
           setActiveChannel(uniqueChannels[0]);
         }
-      } catch (err) {
+      } catch {
         setError('Failed to load IPTV channels. Please try again later.');
       } finally {
         setIsLoading(false);
@@ -272,7 +272,6 @@ export function LiveTVClient() {
                 >
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden ${isActive ? 'bg-white' : 'bg-background border border-border'}`}>
                     {channel.logo ? (
-                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={channel.logo} alt={channel.name} className="w-full h-full object-contain p-1" onError={(e) => e.currentTarget.style.display = 'none'} />
                     ) : (
                       <Tv className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />

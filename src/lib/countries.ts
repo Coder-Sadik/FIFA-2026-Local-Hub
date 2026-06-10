@@ -70,7 +70,7 @@ export function getCountryColor(name: string): string {
   return COUNTRY_DATA[name]?.color || '#333333';
 }
 
-export function getFlagUrl(name: string, size: 'w40' | 'w80' | 'w160' = 'w40'): string {
+export function getFlagUrl(name: string, _size: 'w40' | 'w80' | 'w160' = 'w40'): string {
   const code = getCountryCode(name);
   if (!code) return ''; // fallback to empty
   return `https://flagcdn.com/${code.toLowerCase()}.svg`;
