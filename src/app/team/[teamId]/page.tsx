@@ -26,7 +26,7 @@ export default async function TeamPage({ params }: { params: Promise<{ teamId: s
   
   // Find group standing info
   const groupData = groups.find(g => g.name === team.groups);
-  const standing = groupData?.teams.find((t: any) => t.team_id === team.id);
+  const standing = groupData?.teams.find((t: { team_id: string }) => t.team_id === team.id);
 
   const teamColor = getCountryColor(team.name_en);
   const teamFlag = getFlagUrl(team.name_en, 'w160');
