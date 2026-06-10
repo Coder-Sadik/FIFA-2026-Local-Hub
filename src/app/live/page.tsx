@@ -1,6 +1,7 @@
 import { getGames } from '@/lib/api/worldcup26';
 import { LiveMatchesClient } from '@/components/features/LiveMatchesClient';
-import { Radio } from 'lucide-react';
+import { LiveTVClient } from '@/components/features/LiveTVClient';
+import { Radio, Tv } from 'lucide-react';
 
 export const metadata = {
   title: 'Live Matches | FIFA 2026',
@@ -11,18 +12,32 @@ export default async function LivePage() {
   const games = await getGames();
 
   return (
-    <div className="container mx-auto px-4 md:px-8 py-8 md:py-12 max-w-5xl">
+    <div className="container mx-auto px-4 md:px-8 py-8 md:py-12 max-w-7xl">
       <div className="mb-8 border-b pb-6">
         <h1 className="text-4xl md:text-5xl font-black flex items-center gap-4">
-          <Radio className="h-10 w-10 text-primary" />
+          <Radio className="h-10 w-10 text-primary animate-pulse" />
           Live Action
         </h1>
         <p className="text-muted-foreground mt-4 text-lg">
-          Follow matches in real-time, or see exactly what&apos;s kicking off next.
+          Watch global sports streams and follow World Cup matches in real-time.
         </p>
       </div>
 
-      <LiveMatchesClient initialGames={games} />
+      <div className="mb-16">
+        <h2 className="text-2xl font-bold flex items-center gap-2 mb-6">
+          <Tv className="w-6 h-6 text-primary" />
+          Live TV Streams
+        </h2>
+        <LiveTVClient />
+      </div>
+
+      <div className="mb-8">
+         <h2 className="text-2xl font-bold flex items-center gap-2 mb-6">
+          <Radio className="w-6 h-6 text-primary" />
+          Live Scores & Upcoming
+        </h2>
+        <LiveMatchesClient initialGames={games} />
+      </div>
     </div>
   );
 }

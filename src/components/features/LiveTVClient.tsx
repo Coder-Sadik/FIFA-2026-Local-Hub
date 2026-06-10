@@ -1,0 +1,243 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import Hls from 'hls.js';
+import { Play, Loader2, Tv, AlertCircle, Volume2 } from 'lucide-react';
+
+interface IPTVChannel {
+  id: string;
+  name: string;
+  logo: string;
+  group: string;
+  url: string;
+}
+
+const SPORTS_M3U_URL = 'https://iptv-org.github.io/iptv/categories/sports.m3u';
+
+export function LiveTVClient() {
+  const [channels, setChannels] = useState<IPTVChannel[]>([]);
+  const [activeChannel, setActiveChannel] = useState<IPTVChannel | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [search, setSearch] = useState('');
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const hlsRef = useRef<Hls | null>(null);
+
+  useEffect(() => {
+    async function fetchPlaylist() {
+      try {
+        const response = await fetch(SPORTS_M3U_URL);
+        const text = await response.text();
+        
+        const lines = text.split('\n');
+        const parsed: IPTVChannel[] = [];
+        let currentChannel: Partial<IPTVChannel> | null = null;
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('#EXTINF:')) {
+            currentChannel = {};
+            const tvgIdMatch = trimmed.match(/tvg-id="([^"]+)"/);
+            if (tvgIdMatch) currentChannel.id = tvgIdMatch[1];
+            
+            const logoMatch = trimmed.match(/tvg-logo="([^"]+)"/);
+            if (logoMatch) currentChannel.logo = logoMatch[1];
+            
+            const groupMatch = trimmed.match(/group-title="([^"]+)"/);
+            if (groupMatch) currentChannel.group = groupMatch[1];
+            
+            const nameMatch = trimmed.split(',').pop();
+            if (nameMatch) currentChannel.name = nameMatch.trim();
+            
+            if (!currentChannel.id) {
+               currentChannel.id = currentChannel.name || Math.random().toString();
+            }
+          } else if (trimmed.startsWith('http') && currentChannel) {
+            currentChannel.url = trimmed;
+            parsed.push(currentChannel as IPTVChannel);
+            currentChannel = null;
+          }
+        }
+        
+        // Remove duplicates and sort
+        const uniqueChannels = Array.from(new Map(parsed.map(item => [item.name, item])).values())
+            .filter(c => c.name && c.url)
+            .sort((a, b) => a.name.localeCompare(b.name));
+            
+        setChannels(uniqueChannels);
+        if (uniqueChannels.length > 0) {
+          setActiveChannel(uniqueChannels[0]);
+        }
+      } catch (err) {
+        setError('Failed to load IPTV channels. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchPlaylist();
+    
+    return () => {
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!activeChannel || !videoRef.current) return;
+
+    setIsVideoLoading(true);
+    
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+    }
+
+    if (Hls.isSupported()) {
+      const hls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: true,
+      });
+      hlsRef.current = hls;
+
+      hls.loadSource(activeChannel.url);
+      hls.attachMedia(videoRef.current);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        setIsVideoLoading(false);
+        videoRef.current?.play().catch(() => {
+          // Autoplay might be blocked by browser policy, ignore quietly
+        });
+      });
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              hls.recoverMediaError();
+              break;
+            default:
+              hls.destroy();
+              break;
+          }
+        }
+      });
+    }
+    else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
+      videoRef.current.src = activeChannel.url;
+      videoRef.current.addEventListener('loadedmetadata', () => {
+        setIsVideoLoading(false);
+        videoRef.current?.play().catch(() => {});
+      });
+    }
+  }, [activeChannel]);
+
+  const filteredChannels = channels.filter(c => 
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="w-full bg-card border border-border rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[70vh] min-h-[600px] mb-12">
+      
+      {/* Video Player Section */}
+      <div className="flex-1 bg-black relative flex flex-col">
+        {/* Top Bar overlay */}
+        <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 to-transparent z-10 flex justify-between items-center pointer-events-none">
+           <div className="flex items-center gap-3">
+             <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
+             <span className="font-bold text-white tracking-widest uppercase text-xs">Live TV</span>
+           </div>
+           {activeChannel && (
+             <h2 className="text-white/90 font-medium truncate max-w-[50%]">{activeChannel.name}</h2>
+           )}
+        </div>
+
+        {/* Video Element */}
+        <div className="flex-1 relative">
+            <video 
+              ref={videoRef}
+              className="w-full h-full object-contain bg-black"
+              controls
+              autoPlay
+              playsInline
+              crossOrigin="anonymous"
+            />
+            
+            {/* Loading Overlay */}
+            {isVideoLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-20">
+                <Loader2 className="w-12 h-12 text-primary animate-spin" />
+              </div>
+            )}
+            
+            {error && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20 text-white p-6 text-center">
+                <AlertCircle className="w-12 h-12 text-destructive mb-4" />
+                <h3 className="text-xl font-bold mb-2">Stream Offline</h3>
+                <p className="text-white/60">This community stream is currently unavailable. Try another channel.</p>
+              </div>
+            )}
+        </div>
+      </div>
+
+      {/* Sidebar Channel List */}
+      <div className="w-full md:w-80 lg:w-96 bg-card border-l border-border flex flex-col h-full shrink-0">
+        <div className="p-4 border-b border-border bg-muted/20">
+          <h3 className="font-black text-lg flex items-center gap-2 mb-3">
+            <Tv className="w-5 h-5 text-primary" />
+            Sports Channels
+          </h3>
+          <input 
+            type="text" 
+            placeholder="Search channels..." 
+            className="w-full bg-background border border-border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        
+        <div className="flex-1 overflow-y-auto scrollbar-thin p-2 space-y-1 bg-muted/10">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center h-40 gap-3 text-muted-foreground">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              <span className="text-sm font-medium">Loading 500+ streams...</span>
+            </div>
+          ) : filteredChannels.length > 0 ? (
+            filteredChannels.map((channel) => {
+              const isActive = activeChannel?.id === channel.id;
+              return (
+                <button
+                  key={channel.id}
+                  onClick={() => setActiveChannel(channel)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left ${isActive ? 'bg-primary text-primary-foreground shadow-md scale-[0.98]' : 'hover:bg-muted/50 text-foreground'}`}
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden ${isActive ? 'bg-white' : 'bg-background border border-border'}`}>
+                    {channel.logo ? (
+                       // eslint-disable-next-line @next/next/no-img-element
+                      <img src={channel.logo} alt={channel.name} className="w-full h-full object-contain p-1" onError={(e) => e.currentTarget.style.display = 'none'} />
+                    ) : (
+                      <Tv className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold truncate ${isActive ? 'text-white' : ''}`}>{channel.name}</p>
+                    {channel.group && (
+                      <p className={`text-[10px] uppercase tracking-wider truncate ${isActive ? 'text-white/70' : 'text-muted-foreground'}`}>{channel.group}</p>
+                    )}
+                  </div>
+                  {isActive && <Volume2 className="w-4 h-4 animate-pulse text-white shrink-0" />}
+                </button>
+              );
+            })
+          ) : (
+            <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
+              <p>No channels found.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
