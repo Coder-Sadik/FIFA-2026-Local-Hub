@@ -27,7 +27,30 @@ const getTeamDisplay = (game: Game, type: 'home' | 'away') => {
   };
 };
 
-const MatchBox = ({ game, roundIndex }: { game: Game, roundIndex: number }) => {
+const matchNumberRegex = /Match (\d+)/i;
+
+const getFeederIds = (game: Game): [string | null, string | null] => {
+  const homeMatchId = game.home_team_label?.match(matchNumberRegex)?.[1] || null;
+  const awayMatchId = game.away_team_label?.match(matchNumberRegex)?.[1] || null;
+  return [homeMatchId, awayMatchId];
+};
+
+const getSubtreeIds = (rootId: string, allGames: Game[]): Set<string> => {
+  const ids = new Set<string>();
+  const traverse = (currentId: string) => {
+    ids.add(currentId);
+    const game = allGames.find(g => g.id === currentId);
+    if (!game) return;
+    const [h, a] = getFeederIds(game);
+    if (h) traverse(h);
+    if (a) traverse(a);
+  };
+  traverse(rootId);
+  return ids;
+};
+
+const MatchBox = ({ game, side = 'left', isFinal = false, roundIndex = 0 }: { game: Game, side?: 'left' | 'right', isFinal?: boolean, roundIndex?: number }) => {
+  if (!game) return null;
   const home = getTeamDisplay(game, 'home');
   const away = getTeamDisplay(game, 'away');
 
@@ -40,62 +63,77 @@ const MatchBox = ({ game, roundIndex }: { game: Game, roundIndex: number }) => {
   const isLive = game.finished === 'FALSE' && game.time_elapsed !== 'notstarted';
   const isFinished = game.finished === 'TRUE';
   
-  // Determine winner for highlighting
   const homeWon = isFinished && Number(home.score) > Number(away.score);
   const awayWon = isFinished && Number(away.score) > Number(home.score);
 
+  // Calculate bracket fork height based on round
+  // Container is fixed at 1040px height. R32=8 cards, so distance=130px.
+  const forkHeights = ['0px', '130px', '260px', '520px'];
+  const forkHeight = forkHeights[roundIndex] || '0px';
+
   return (
-    <div className="relative group w-64 shrink-0">
-      {/* Visual Connector to next round (hidden on final) */}
-      {roundIndex < 4 && (
-        <div className="absolute top-1/2 -right-6 w-6 h-[2px] bg-border z-0 group-hover:bg-primary/50 transition-colors" />
+    <div className={`relative group shrink-0 ${isFinal ? 'w-64' : 'w-48'}`}>
+      {/* --- CONNECTING LINES --- */}
+      {!isFinal && (
+        <>
+          {/* Horizontal line going OUT to the next round */}
+          <div className={`absolute top-1/2 w-4 h-px bg-border/50 ${side === 'left' ? '-right-4' : '-left-4'}`} />
+          
+          {/* Vertical Bracket Fork catching the previous round */}
+          {roundIndex > 0 && (
+             <div 
+               className={`absolute top-1/2 -translate-y-1/2 w-4 border-y border-border/50 ${side === 'left' ? '-left-4 border-l' : '-right-4 border-r'}`}
+               style={{ height: forkHeight }}
+             />
+          )}
+        </>
       )}
-      {/* Visual Connector from previous round (hidden on R32) */}
-      {roundIndex > 0 && (
-        <div className="absolute top-1/2 -left-6 w-6 h-[2px] bg-border z-0 group-hover:bg-primary/50 transition-colors" />
+      
+      {/* --- FINAL CONNECTOR --- */}
+      {isFinal && game.type === 'final' && (
+         <>
+           <div className="absolute top-1/2 w-6 h-px bg-border/50 -left-6" />
+           <div className="absolute top-1/2 w-6 h-px bg-border/50 -right-6" />
+         </>
       )}
 
-      <div className="relative z-10 bg-card/80 backdrop-blur-md border border-white/10 rounded-xl shadow-lg overflow-hidden flex flex-col text-sm transition-all duration-300 hover:shadow-primary/20 hover:border-primary/40 hover:-translate-y-1 cursor-pointer">
-        {/* Header line */}
-        <div className={`h-1 w-full ${isLive ? 'bg-red-500 animate-pulse' : isFinished ? 'bg-muted' : 'bg-gradient-to-r from-primary to-emerald-400'}`} />
+      {/* --- CARD --- */}
+      <div className={`relative z-10 bg-card border border-border shadow-sm rounded-md overflow-hidden flex flex-col text-xs transition-all duration-300 hover:shadow-md hover:border-primary/40 cursor-pointer`}>
         
-        <div className="bg-muted/30 text-muted-foreground text-[10px] tracking-wider uppercase font-bold text-center py-1.5 border-b border-white/5 flex items-center justify-center gap-2">
-          {isLive && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
-          {isLive ? <span className="text-red-500">LIVE {game.time_elapsed}&apos;</span> : dateDisplay}
+        {/* Header */}
+        <div className="bg-muted/40 text-muted-foreground text-[9px] tracking-wider uppercase font-bold text-center py-1 border-b border-border flex items-center justify-between px-2">
+          <span>{isLive ? <span className="text-red-500 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"/> LIVE {game.time_elapsed}&apos;</span> : dateDisplay}</span>
+          <span className="opacity-50">M{game.id}</span>
         </div>
         
         {/* Home Team */}
-        <div className={`flex items-center justify-between p-2.5 border-b border-white/5 transition-colors ${homeWon ? 'bg-primary/5' : ''}`}>
-          <div className="flex items-center gap-3 truncate">
+        <div className={`flex items-center justify-between p-1.5 border-b border-border ${homeWon ? 'bg-primary/5' : ''}`}>
+          <div className="flex items-center gap-2 truncate">
             {home.flag ? (
-              <img src={home.flag} alt={home.name} className="w-5 h-5 object-contain drop-shadow-sm" />
+              <img src={home.flag} alt={home.name} className="w-4 h-4 object-contain" />
             ) : (
-              <div className="w-5 h-5 bg-muted rounded-full ring-1 ring-white/10" />
+              <div className="w-4 h-4 bg-muted rounded-full" />
             )}
-            <span className={`truncate ${homeWon ? 'font-black text-foreground' : home.name === 'TBD' || home.name.includes('Winner') ? 'font-medium text-muted-foreground italic' : 'font-semibold text-foreground/90'}`}>
+            <span className={`truncate ${homeWon ? 'font-bold text-foreground' : home.name === 'TBD' || home.name.includes('Winner') || home.name.includes('Runner') || home.name.includes('3rd') ? 'font-medium text-muted-foreground' : 'font-semibold text-foreground/90'}`}>
               {home.name}
             </span>
           </div>
-          {home.score !== null && (
-            <span className={`font-black text-lg ml-2 ${homeWon ? 'text-primary' : 'text-muted-foreground'}`}>{home.score}</span>
-          )}
+          <span className={`font-bold ml-2 ${homeWon ? 'text-primary' : 'text-muted-foreground'}`}>{home.score ?? '-'}</span>
         </div>
 
         {/* Away Team */}
-        <div className={`flex items-center justify-between p-2.5 transition-colors ${awayWon ? 'bg-primary/5' : ''}`}>
-          <div className="flex items-center gap-3 truncate">
+        <div className={`flex items-center justify-between p-1.5 ${awayWon ? 'bg-primary/5' : ''}`}>
+          <div className="flex items-center gap-2 truncate">
             {away.flag ? (
-              <img src={away.flag} alt={away.name} className="w-5 h-5 object-contain drop-shadow-sm" />
+              <img src={away.flag} alt={away.name} className="w-4 h-4 object-contain" />
             ) : (
-              <div className="w-5 h-5 bg-muted rounded-full ring-1 ring-white/10" />
+              <div className="w-4 h-4 bg-muted rounded-full" />
             )}
-            <span className={`truncate ${awayWon ? 'font-black text-foreground' : away.name === 'TBD' || away.name.includes('Winner') ? 'font-medium text-muted-foreground italic' : 'font-semibold text-foreground/90'}`}>
+            <span className={`truncate ${awayWon ? 'font-bold text-foreground' : away.name === 'TBD' || away.name.includes('Winner') || away.name.includes('Runner') || away.name.includes('3rd') ? 'font-medium text-muted-foreground' : 'font-semibold text-foreground/90'}`}>
               {away.name}
             </span>
           </div>
-          {away.score !== null && (
-            <span className={`font-black text-lg ml-2 ${awayWon ? 'text-primary' : 'text-muted-foreground'}`}>{away.score}</span>
-          )}
+          <span className={`font-bold ml-2 ${awayWon ? 'text-primary' : 'text-muted-foreground'}`}>{away.score ?? '-'}</span>
         </div>
       </div>
     </div>
@@ -110,53 +148,84 @@ export function BracketClient({ games }: BracketClientProps) {
 
   if (!mounted) return null;
 
-  // Filter games by rounds
-  const r32 = games.filter(g => g.type === 'r32').sort((a, b) => Number(a.id) - Number(b.id));
-  const r16 = games.filter(g => g.type === 'r16').sort((a, b) => Number(a.id) - Number(b.id));
-  const qf = games.filter(g => g.type === 'qf').sort((a, b) => Number(a.id) - Number(b.id));
-  const sf = games.filter(g => g.type === 'sf').sort((a, b) => Number(a.id) - Number(b.id));
-  const third = games.filter(g => g.type === 'third').sort((a, b) => Number(a.id) - Number(b.id));
-  const final = games.filter(g => g.type === 'final').sort((a, b) => Number(a.id) - Number(b.id));
+  // Find Final
+  const finalMatch = games.find(g => g.type === 'final');
+  const thirdMatch = games.find(g => g.type === 'third');
+
+  // Find SFs feeding into Final
+  let leftSfId: string | null = null;
+  let rightSfId: string | null = null;
+  if (finalMatch) {
+    [leftSfId, rightSfId] = getFeederIds(finalMatch);
+  }
+
+  // Determine Left and Right tree subsets
+  const leftTreeIds = leftSfId ? getSubtreeIds(leftSfId, games) : new Set<string>();
+  const rightTreeIds = rightSfId ? getSubtreeIds(rightSfId, games) : new Set<string>();
+
+  const filterSide = (type: string, ids: Set<string>) => 
+    games.filter(g => g.type === type && ids.has(g.id)).sort((a, b) => Number(a.id) - Number(b.id));
+
+  // Left Side
+  const leftR32 = filterSide('r32', leftTreeIds);
+  const leftR16 = filterSide('r16', leftTreeIds);
+  const leftQF = filterSide('qf', leftTreeIds);
+  const leftSF = filterSide('sf', leftTreeIds);
+
+  // Right Side
+  const rightR32 = filterSide('r32', rightTreeIds);
+  const rightR16 = filterSide('r16', rightTreeIds);
+  const rightQF = filterSide('qf', rightTreeIds);
+  const rightSF = filterSide('sf', rightTreeIds);
 
   return (
-    <div className="w-full overflow-x-auto pb-12 cursor-grab active:cursor-grabbing scrollbar-hide">
-      <div className="min-w-[1400px] p-8 md:p-12 flex gap-12 min-h-[2200px] relative">
+    <div className="w-full overflow-x-auto pb-12 cursor-grab active:cursor-grabbing scrollbar-hide bg-muted/10 p-4 md:p-8 rounded-3xl">
+      <div className="min-w-[1200px] flex justify-center gap-8 relative h-[1040px]">
         
-        {/* Round of 32 */}
-        <div className="flex flex-col justify-around gap-4 flex-1 h-full z-10">
-          <h3 className="text-center font-black tracking-widest text-sm text-primary/80 mb-6 uppercase">Round of 32</h3>
-          {r32.map(game => <MatchBox key={game.id} game={game} roundIndex={0} />)}
-        </div>
-
-        {/* Round of 16 */}
-        <div className="flex flex-col justify-around gap-4 flex-1 h-full z-10">
-          <h3 className="text-center font-black tracking-widest text-sm text-primary/80 mb-6 uppercase">Round of 16</h3>
-          {r16.map(game => <MatchBox key={game.id} game={game} roundIndex={1} />)}
-        </div>
-
-        {/* Quarter-Finals */}
-        <div className="flex flex-col justify-around gap-4 flex-1 h-full z-10">
-          <h3 className="text-center font-black tracking-widest text-sm text-primary/80 mb-6 uppercase">Quarter-Finals</h3>
-          {qf.map(game => <MatchBox key={game.id} game={game} roundIndex={2} />)}
-        </div>
-
-        {/* Semi-Finals */}
-        <div className="flex flex-col justify-around gap-4 flex-1 h-full z-10">
-          <h3 className="text-center font-black tracking-widest text-sm text-primary/80 mb-6 uppercase">Semi-Finals</h3>
-          {sf.map(game => <MatchBox key={game.id} game={game} roundIndex={3} />)}
-        </div>
-
-        {/* Final & Third Place */}
-        <div className="flex flex-col justify-center gap-40 flex-1 h-full relative z-10">
-          <div className="flex flex-col gap-4 relative">
-            <div className="absolute -inset-4 bg-primary/20 blur-2xl rounded-full -z-10" />
-            <h3 className="text-center font-black tracking-widest text-xl text-primary mb-2 uppercase drop-shadow-lg">🏆 Final</h3>
-            {final.map(game => <MatchBox key={game.id} game={game} roundIndex={4} />)}
+        {/* LEFT SIDE */}
+        <div className="flex gap-8">
+          <div className="flex flex-col justify-around z-10 w-48">
+            {leftR32.map(game => <MatchBox key={game.id} game={game} side="left" roundIndex={0} />)}
           </div>
+          <div className="flex flex-col justify-around z-10 w-48">
+            {leftR16.map(game => <MatchBox key={game.id} game={game} side="left" roundIndex={1} />)}
+          </div>
+          <div className="flex flex-col justify-around z-10 w-48">
+            {leftQF.map(game => <MatchBox key={game.id} game={game} side="left" roundIndex={2} />)}
+          </div>
+          <div className="flex flex-col justify-around z-10 w-48">
+            {leftSF.map(game => <MatchBox key={game.id} game={game} side="left" roundIndex={3} />)}
+          </div>
+        </div>
+
+        {/* CENTER FINAL */}
+        <div className="flex flex-col justify-center items-center gap-16 z-10 w-64 px-4 border-x border-border/30 bg-background/50 backdrop-blur-sm shadow-2xl relative">
+          {/* Subtle trophy glow */}
+          <div className="absolute inset-0 bg-primary/5 blur-[80px] -z-10" />
           
-          <div className="flex flex-col gap-4 mt-24">
-            <h3 className="text-center font-bold tracking-widest text-sm text-muted-foreground mb-2 uppercase">🥉 Third Place</h3>
-            {third.map(game => <MatchBox key={game.id} game={game} roundIndex={4} />)}
+          <div className="flex flex-col gap-2 w-full items-center relative">
+            <h3 className="text-center font-black tracking-widest text-lg text-primary uppercase drop-shadow-md">🏆 Final</h3>
+            {finalMatch && <MatchBox game={finalMatch} isFinal />}
+          </div>
+          <div className="flex flex-col gap-2 w-full items-center">
+            <h3 className="text-center font-bold tracking-widest text-xs text-muted-foreground uppercase">🥉 3rd Place</h3>
+            {thirdMatch && <MatchBox game={thirdMatch} isFinal />}
+          </div>
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="flex gap-8">
+          <div className="flex flex-col justify-around z-10 w-48">
+            {rightSF.map(game => <MatchBox key={game.id} game={game} side="right" roundIndex={3} />)}
+          </div>
+          <div className="flex flex-col justify-around z-10 w-48">
+            {rightQF.map(game => <MatchBox key={game.id} game={game} side="right" roundIndex={2} />)}
+          </div>
+          <div className="flex flex-col justify-around z-10 w-48">
+            {rightR16.map(game => <MatchBox key={game.id} game={game} side="right" roundIndex={1} />)}
+          </div>
+          <div className="flex flex-col justify-around z-10 w-48">
+            {rightR32.map(game => <MatchBox key={game.id} game={game} side="right" roundIndex={0} />)}
           </div>
         </div>
 
