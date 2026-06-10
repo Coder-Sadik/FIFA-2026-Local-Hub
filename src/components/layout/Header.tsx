@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Info, Radio, Trophy } from 'lucide-react';
+import { Search, Info, Radio, Trophy, Clock } from 'lucide-react';
 import { Input } from '../ui/input';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -19,11 +19,18 @@ export function Header() {
   const { timezone, setTimezone } = usePreferences();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date());
   const router = useRouter();
 
   useEffect(() => {
     // eslint-disable-next-line
     setMounted(true);
+    
+    // Clock updater
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -34,6 +41,14 @@ export function Header() {
       router.push('/fixtures');
     }
   };
+
+  const timeFormatter = mounted ? new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  }) : null;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -67,6 +82,16 @@ export function Header() {
             </form>
           </div>
           <div className="flex items-center space-x-2">
+            {/* Clock */}
+            {mounted && timeFormatter ? (
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 rounded-md border border-border text-sm font-medium tabular-nums text-foreground/80 shadow-sm">
+                <Clock className="w-4 h-4 text-primary" />
+                {timeFormatter.format(currentTime)}
+              </div>
+            ) : (
+              <div className="hidden sm:block w-[100px] h-9 bg-muted rounded-md animate-pulse" />
+            )}
+
             {/* Timezone Selector */}
             {mounted ? (
               <Select value={timezone} onValueChange={(val) => val && setTimezone(val)}>
