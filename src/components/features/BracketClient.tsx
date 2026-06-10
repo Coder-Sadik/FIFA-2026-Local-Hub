@@ -175,7 +175,7 @@ export function BracketClient({ games }: BracketClientProps) {
 
   return (
     <div className="w-full overflow-x-auto pb-12 cursor-grab active:cursor-grabbing scrollbar-hide bg-muted/10 p-4 md:p-8 rounded-3xl">
-      <div className="min-w-[1200px] flex justify-center gap-8 relative h-[1040px]">
+      <div className="w-max mx-auto flex gap-8 relative h-[1040px] px-4">
         
         {/* LEFT SIDE */}
         <div className="flex gap-8">
