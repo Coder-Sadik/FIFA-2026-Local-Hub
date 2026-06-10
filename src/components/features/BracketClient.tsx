@@ -120,28 +120,28 @@ export function BracketClient({ games }: BracketClientProps) {
 
   return (
     <div className="w-full overflow-x-auto pb-12 cursor-grab active:cursor-grabbing scrollbar-hide">
-      <div className="min-w-[1400px] p-8 md:p-12 flex gap-12 h-[1400px] relative">
+      <div className="min-w-[1400px] p-8 md:p-12 flex gap-12 min-h-[2200px] relative">
         
         {/* Round of 32 */}
-        <div className="flex flex-col justify-around flex-1 h-full z-10">
+        <div className="flex flex-col justify-around gap-4 flex-1 h-full z-10">
           <h3 className="text-center font-black tracking-widest text-sm text-primary/80 mb-6 uppercase">Round of 32</h3>
           {r32.map(game => <MatchBox key={game.id} game={game} roundIndex={0} />)}
         </div>
 
         {/* Round of 16 */}
-        <div className="flex flex-col justify-around flex-1 h-full z-10">
+        <div className="flex flex-col justify-around gap-4 flex-1 h-full z-10">
           <h3 className="text-center font-black tracking-widest text-sm text-primary/80 mb-6 uppercase">Round of 16</h3>
           {r16.map(game => <MatchBox key={game.id} game={game} roundIndex={1} />)}
         </div>
 
         {/* Quarter-Finals */}
-        <div className="flex flex-col justify-around flex-1 h-full z-10">
+        <div className="flex flex-col justify-around gap-4 flex-1 h-full z-10">
           <h3 className="text-center font-black tracking-widest text-sm text-primary/80 mb-6 uppercase">Quarter-Finals</h3>
           {qf.map(game => <MatchBox key={game.id} game={game} roundIndex={2} />)}
         </div>
 
         {/* Semi-Finals */}
-        <div className="flex flex-col justify-around flex-1 h-full z-10">
+        <div className="flex flex-col justify-around gap-4 flex-1 h-full z-10">
           <h3 className="text-center font-black tracking-widest text-sm text-primary/80 mb-6 uppercase">Semi-Finals</h3>
           {sf.map(game => <MatchBox key={game.id} game={game} roundIndex={3} />)}
         </div>
