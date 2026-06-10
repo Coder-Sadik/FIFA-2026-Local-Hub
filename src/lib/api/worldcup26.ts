@@ -1,4 +1,4 @@
-import { Game, Team } from '@/types';
+import { Game, Team, Stadium } from '@/types';
 
 const BASE_URL = 'https://worldcup26.ir/get';
 
@@ -22,7 +22,7 @@ export async function getTeams(): Promise<Team[]> {
   return data.teams || [];
 }
 
-export async function getStadiums(): Promise<unknown[]> {
+export async function getStadiums(): Promise<Stadium[]> {
   const res = await fetch(`${BASE_URL}/stadiums`, {
     next: { revalidate: 3600 * 24 * 7 }, // Weekly
   });
@@ -31,7 +31,7 @@ export async function getStadiums(): Promise<unknown[]> {
   return data.stadiums || [];
 }
 
-export async function getGroups(): Promise<unknown[]> {
+export async function getGroups(): Promise<any[]> {
   const res = await fetch(`${BASE_URL}/groups`, {
     next: { revalidate: 3600 },
   });

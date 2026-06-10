@@ -26,6 +26,8 @@ export interface Game {
   type: string;
   home_team_name_en: string;
   away_team_name_en: string;
+  home_team_label?: string;
+  away_team_label?: string;
 }
 
 export interface Stadium {
