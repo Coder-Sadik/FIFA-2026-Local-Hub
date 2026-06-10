@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <circle cx="256" cy="256" r="240" fill="#059669"/>
+  <!-- Central pentagon -->
+  <polygon points="256,140 160,210 196,330 316,330 352,210" fill="#ffffff" opacity="0.95"/>
+  <!-- Lines radiating from pentagon to outer edge -->
+  <line x1="256" y1="140" x2="256" y2="40" stroke="#ffffff" stroke-width="20" stroke-linecap="round" />
+  <line x1="160" y1="210" x2="60" y2="180" stroke="#ffffff" stroke-width="20" stroke-linecap="round" />
+  <line x1="352" y1="210" x2="452" y2="180" stroke="#ffffff" stroke-width="20" stroke-linecap="round" />
+  <line x1="196" y1="330" x2="136" y2="430" stroke="#ffffff" stroke-width="20" stroke-linecap="round" />
+  <line x1="316" y1="330" x2="376" y2="430" stroke="#ffffff" stroke-width="20" stroke-linecap="round" />
+  
+  <!-- Outer connecting lines (Hexagon shapes) -->
+  <path d="M 60 180 L 136 430" stroke="#ffffff" stroke-width="20" stroke-linecap="round" />
+  <path d="M 452 180 L 376 430" stroke="#ffffff" stroke-width="20" stroke-linecap="round" />
+  <path d="M 60 180 C 130 90, 256 40, 256 40" stroke="#ffffff" stroke-width="20" stroke-linecap="round" fill="none" />
+  <path d="M 452 180 C 382 90, 256 40, 256 40" stroke="#ffffff" stroke-width="20" stroke-linecap="round" fill="none" />
+  <path d="M 136 430 Q 256 470 376 430" stroke="#ffffff" stroke-width="20" stroke-linecap="round" fill="none" />
+  
+  <!-- "26" Badge Overlay in center -->
+  <circle cx="256" cy="245" r="50" fill="#059669" />
+  <text x="256" y="265" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="50" fill="#ffffff" text-anchor="middle">26</text>
+</svg>
