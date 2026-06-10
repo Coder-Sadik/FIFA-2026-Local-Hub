@@ -19,6 +19,7 @@ export function Header() {
   const { timezone, setTimezone } = usePreferences();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const router = useRouter();
 
@@ -68,19 +69,32 @@ export function Header() {
             <Link href="/bracket" className="transition-colors hover:text-foreground/80 text-primary font-semibold">Bracket</Link>
           </nav>
         </div>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <form onSubmit={handleSearch} className="relative">
+        <div className="flex flex-1 items-center justify-end space-x-2 md:space-x-4">
+          
+          {/* Expandable Search */}
+          {isSearchExpanded ? (
+            <form onSubmit={handleSearch} className="relative animate-in slide-in-from-right-4 fade-in duration-200">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search matches..."
                 value={search}
+                autoFocus
+                onBlur={() => { if(!search) setIsSearchExpanded(false) }}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+                className="pl-8 w-[200px] md:w-[250px] transition-all"
               />
             </form>
-          </div>
+          ) : (
+            <button 
+              onClick={() => setIsSearchExpanded(true)}
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
+              aria-label="Search"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+          )}
+
           <div className="flex items-center space-x-2">
             {/* Clock */}
             {mounted && timeFormatter ? (
