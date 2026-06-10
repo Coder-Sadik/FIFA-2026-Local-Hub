@@ -21,9 +21,12 @@ export function LiveTVClient() {
   const [error, setError] = useState<string | null>(null);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All');
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
+
+  const CATEGORIES = ['All', 'Football', 'Cricket', 'Motorsport', 'Basketball', 'Tennis', 'Combat'];
 
   useEffect(() => {
     async function fetchPlaylist() {
@@ -134,9 +137,31 @@ export function LiveTVClient() {
     }
   }, [activeChannel]);
 
-  const filteredChannels = channels.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredChannels = channels.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase());
+    if (!matchesSearch) return false;
+    
+    if (category === 'All') return true;
+    
+    const searchStr = (c.name + ' ' + (c.group || '')).toLowerCase();
+    
+    switch(category) {
+      case 'Football':
+        return searchStr.includes('football') || searchStr.includes('soccer') || searchStr.includes('fifa') || searchStr.includes('premier') || searchStr.includes('laliga');
+      case 'Cricket':
+        return searchStr.includes('cricket') || searchStr.includes('cric') || searchStr.includes('ipl');
+      case 'Motorsport':
+        return searchStr.includes('motor') || searchStr.includes('f1') || searchStr.includes('racing') || searchStr.includes('nascar') || searchStr.includes('moto');
+      case 'Basketball':
+        return searchStr.includes('basket') || searchStr.includes('nba');
+      case 'Tennis':
+        return searchStr.includes('tennis') || searchStr.includes('atp') || searchStr.includes('wta');
+      case 'Combat':
+        return searchStr.includes('wwe') || searchStr.includes('ufc') || searchStr.includes('boxing') || searchStr.includes('mma') || searchStr.includes('fight');
+      default:
+        return true;
+    }
+  });
 
   return (
     <div className="w-full bg-card border border-border rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[70vh] min-h-[600px] mb-12">
@@ -196,6 +221,18 @@ export function LiveTVClient() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          
+          <div className="flex gap-2 mt-4 overflow-x-auto pb-1 scrollbar-hide">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setCategory(cat)}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-full whitespace-nowrap transition-colors ${category === cat ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-background border border-border text-muted-foreground hover:text-foreground hover:bg-muted'}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
         
         <div className="flex-1 overflow-y-auto scrollbar-thin p-2 space-y-1 bg-muted/10">
