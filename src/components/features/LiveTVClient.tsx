@@ -239,6 +239,7 @@ export function LiveTVClient() {
             className="w-full bg-background border border-border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            suppressHydrationWarning
           />
           
           <div className="flex gap-2 mt-4 overflow-x-auto pb-1 scrollbar-hide">
