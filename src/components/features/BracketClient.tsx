@@ -159,24 +159,19 @@ export function BracketClient({ games }: BracketClientProps) {
     [leftSfId, rightSfId] = getFeederIds(finalMatch);
   }
 
-  // Determine Left and Right tree subsets
-  const leftTreeIds = leftSfId ? getSubtreeIds(leftSfId, games) : new Set<string>();
-  const rightTreeIds = rightSfId ? getSubtreeIds(rightSfId, games) : new Set<string>();
+  // Left Side ordered logically
+  const leftColumns = leftSfId ? buildColumnOrder(leftSfId, games) : [[], [], [], []];
+  const leftSF = leftColumns[0];
+  const leftQF = leftColumns[1];
+  const leftR16 = leftColumns[2];
+  const leftR32 = leftColumns[3];
 
-  const filterSide = (type: string, ids: Set<string>) => 
-    games.filter(g => g.type === type && ids.has(g.id)).sort((a, b) => Number(a.id) - Number(b.id));
-
-  // Left Side
-  const leftR32 = filterSide('r32', leftTreeIds);
-  const leftR16 = filterSide('r16', leftTreeIds);
-  const leftQF = filterSide('qf', leftTreeIds);
-  const leftSF = filterSide('sf', leftTreeIds);
-
-  // Right Side
-  const rightR32 = filterSide('r32', rightTreeIds);
-  const rightR16 = filterSide('r16', rightTreeIds);
-  const rightQF = filterSide('qf', rightTreeIds);
-  const rightSF = filterSide('sf', rightTreeIds);
+  // Right Side ordered logically
+  const rightColumns = rightSfId ? buildColumnOrder(rightSfId, games) : [[], [], [], []];
+  const rightSF = rightColumns[0];
+  const rightQF = rightColumns[1];
+  const rightR16 = rightColumns[2];
+  const rightR32 = rightColumns[3];
 
   return (
     <div className="w-full overflow-x-auto pb-12 cursor-grab active:cursor-grabbing scrollbar-hide bg-muted/10 p-4 md:p-8 rounded-3xl">
