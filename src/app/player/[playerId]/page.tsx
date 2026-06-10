@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, CalendarDays, MapPin, DollarSign, Facebook, Twitter, Instagram, ArrowLeft } from 'lucide-react';
+import { User, CalendarDays, MapPin, DollarSign, ArrowLeft, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function PlayerPage({ params }: { params: Promise<{ playerId: string }> }) {
@@ -72,21 +72,20 @@ export default async function PlayerPage({ params }: { params: Promise<{ playerI
                 )}
               </div>
 
-              {/* Socials */}
               <div className="flex items-center gap-2 pt-4 border-t">
                 {player.strFacebook && (
-                  <a href={`https://${player.strFacebook}`} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-blue-600 transition-colors">
-                    <Facebook className="h-5 w-5" />
+                  <a href={`https://${player.strFacebook}`} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-blue-600 transition-colors flex items-center gap-1 text-sm">
+                    <ExternalLink className="h-4 w-4" /> Facebook
                   </a>
                 )}
                 {player.strTwitter && (
-                  <a href={`https://${player.strTwitter}`} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-blue-400 transition-colors">
-                    <Twitter className="h-5 w-5" />
+                  <a href={`https://${player.strTwitter}`} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-blue-400 transition-colors flex items-center gap-1 text-sm">
+                    <ExternalLink className="h-4 w-4" /> Twitter
                   </a>
                 )}
                 {player.strInstagram && (
-                  <a href={`https://${player.strInstagram}`} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-pink-600 transition-colors">
-                    <Instagram className="h-5 w-5" />
+                  <a href={`https://${player.strInstagram}`} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-pink-600 transition-colors flex items-center gap-1 text-sm">
+                    <ExternalLink className="h-4 w-4" /> Instagram
                   </a>
                 )}
               </div>
