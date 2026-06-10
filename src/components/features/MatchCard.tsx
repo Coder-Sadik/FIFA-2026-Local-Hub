@@ -112,10 +112,10 @@ export function MatchCard({ game }: MatchCardProps) {
 
         <div className="mt-4 pt-4 border-t text-xs text-muted-foreground flex justify-between items-center">
           <span className="truncate pr-4 max-w-[200px] flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5" /> 
+            <MapPin className="h-3.5 w-3.5 shrink-0" /> 
             {getStadiumName(game.stadium_id)}
           </span>
-          <Link href={`/match/${game.id}`} className={buttonVariants({ variant: "link", className: "p-0 h-auto text-primary shrink-0" })}>Match Details →</Link>
+          {/* <Link href={`/match/${game.id}`} className={buttonVariants({ variant: "link", className: "p-0 h-auto text-primary shrink-0" })}>Match Details →</Link> */}
         </div>
       </CardContent>
     </Card>

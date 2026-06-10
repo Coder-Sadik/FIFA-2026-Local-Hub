@@ -7,6 +7,9 @@ import { MatchCard } from '@/components/features/MatchCard';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { usePreferences } from '@/store/usePreferences';
+import { Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface FixturesClientProps {
   initialGames: Game[];
@@ -17,8 +20,12 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
   const [search, setSearch] = useState(searchParams.get('q') || '');
   const [groupFilter, setGroupFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [showFavorites, setShowFavorites] = useState(false);
+  const { favoriteTeams } = usePreferences();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const q = searchParams.get('q');
     if (q !== null) {
       setSearch(q);
@@ -27,6 +34,13 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
 
   const filteredGames = useMemo(() => {
     return initialGames.filter((game) => {
+      // Favorites Filter
+      if (mounted && showFavorites) {
+        if (!favoriteTeams.includes(game.home_team_id) && !favoriteTeams.includes(game.away_team_id)) {
+          return false;
+        }
+      }
+
       // Search
       if (search) {
         const query = search.toLowerCase();
@@ -64,12 +78,13 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
     <div className="space-y-8">
       {/* Filters Bar */}
       <div className="bg-muted/30 p-4 rounded-xl border flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
+        <div className="flex-1" suppressHydrationWarning>
           <Input 
             placeholder="Search teams, groups, or venues..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-background"
+            suppressHydrationWarning
           />
         </div>
         
@@ -93,6 +108,17 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
             <TabsTrigger value="FINISHED">Finished</TabsTrigger>
           </TabsList>
         </Tabs>
+        
+        {mounted && favoriteTeams.length > 0 && (
+          <Button 
+            variant={showFavorites ? "default" : "outline"}
+            onClick={() => setShowFavorites(!showFavorites)}
+            className={`gap-2 md:w-auto ${showFavorites ? 'bg-yellow-500 hover:bg-yellow-600 text-white border-transparent' : 'border-yellow-500 text-yellow-600 hover:bg-yellow-50'}`}
+          >
+            <Star className={`h-4 w-4 ${showFavorites ? 'fill-white' : 'fill-yellow-500'}`} />
+            My Teams
+          </Button>
+        )}
       </div>
 
       {/* Results */}

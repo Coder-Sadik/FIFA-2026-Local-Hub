@@ -51,8 +51,19 @@ export const COUNTRY_DATA: Record<string, { code: string; color: string }> = {
   'Scotland': { code: 'gb-sct', color: '#0065BD' },
 };
 
+import * as countries from 'i18n-iso-countries';
+import enLocale from 'i18n-iso-countries/langs/en.json';
+countries.registerLocale(enLocale);
+
 export function getCountryCode(name: string): string | null {
-  return COUNTRY_DATA[name]?.code || null;
+  // First check custom mapping
+  if (COUNTRY_DATA[name]) return COUNTRY_DATA[name].code;
+  
+  // Try i18n-iso-countries for missing countries
+  const code = countries.getAlpha2Code(name, 'en');
+  if (code) return code.toLowerCase();
+  
+  return null;
 }
 
 export function getCountryColor(name: string): string {
@@ -62,5 +73,5 @@ export function getCountryColor(name: string): string {
 export function getFlagUrl(name: string, size: 'w40' | 'w80' | 'w160' = 'w40'): string {
   const code = getCountryCode(name);
   if (!code) return ''; // fallback to empty
-  return `https://flagcdn.com/${size}/${code}.png`;
+  return `https://flagcdn.com/${code.toLowerCase()}.svg`;
 }
