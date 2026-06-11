@@ -1,13 +1,9 @@
 import { getTeams, getGames, getGroups } from '@/lib/api/worldcup26';
-import { getTeamIdByName, getTeamDetails, getTeamPlayers } from '@/lib/api/thesportsdb';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MatchCard } from '@/components/features/MatchCard';
-import { MapPin, Users, Info, User } from 'lucide-react';
 
 import { getFlagUrl, getCountryColor } from '@/lib/countries';
-import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
 import { FavoriteTeamButton } from '@/components/features/FavoriteTeamButton';
 
 export default async function TeamPage({ params }: { params: Promise<{ teamId: string }> }) {
@@ -17,11 +13,6 @@ export default async function TeamPage({ params }: { params: Promise<{ teamId: s
   const team = teams.find(t => t.id === resolvedParams.teamId);
   if (!team) notFound();
 
-  // Fetch TheSportsDB integration
-  const idTeam = await getTeamIdByName(team.name_en);
-  const sportsDbTeam = idTeam ? await getTeamDetails(idTeam) : null;
-  const players = idTeam ? await getTeamPlayers(idTeam) : [];
-
   const teamGames = games.filter(g => g.home_team_id === team.id || g.away_team_id === team.id);
   
   // Find group standing info
@@ -30,9 +21,6 @@ export default async function TeamPage({ params }: { params: Promise<{ teamId: s
 
   const teamColor = getCountryColor(team.name_en);
   const teamFlag = getFlagUrl(team.name_en, 'w160');
-  
-  // Try to use TheSportsDB banner/fanart for header background, fallback to teamColor
-  const headerBg = sportsDbTeam?.strBanner || sportsDbTeam?.strFanart1;
 
   return (
     <div className="container mx-auto px-4 md:px-8 py-8 md:py-12 max-w-6xl">
@@ -43,16 +31,6 @@ export default async function TeamPage({ params }: { params: Promise<{ teamId: s
           backgroundColor: 'hsl(var(--background) / 0.8)'
         }}
       >
-        {headerBg && (
-          <div 
-            className="absolute inset-0 z-0 opacity-20"
-            style={{
-              backgroundImage: `url(${headerBg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          />
-        )}
         <div 
           className="absolute inset-0 z-0 opacity-50"
           style={{
@@ -61,9 +39,7 @@ export default async function TeamPage({ params }: { params: Promise<{ teamId: s
         />
         
         <div className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-muted flex items-center justify-center overflow-hidden border-4 shadow-xl z-10 relative bg-background" style={{ borderColor: teamColor }}>
-          {sportsDbTeam?.strBadge ? (
-            <img src={sportsDbTeam.strBadge} alt={team.name_en} className="w-3/4 h-3/4 object-contain" />
-          ) : teamFlag ? (
+          {teamFlag ? (
             <img src={teamFlag} alt={team.name_en} className="w-full h-full object-cover" />
           ) : (
             <span className="text-6xl">{team.name_en.charAt(0)}</span>
@@ -119,48 +95,9 @@ export default async function TeamPage({ params }: { params: Promise<{ teamId: s
               )}
             </CardContent>
           </Card>
-
-          {/* External Details Card */}
-          {sportsDbTeam && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Team Profile</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {sportsDbTeam.strKeywords && (
-                    <div className="flex items-center gap-3 border-b pb-2">
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground font-medium">Keywords</p>
-                        <p className="text-sm font-semibold">{sportsDbTeam.strKeywords}</p>
-                      </div>
-                    </div>
-                  )}
-                  {sportsDbTeam.strStadium && (
-                    <div className="flex items-center gap-3 border-b pb-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground font-medium">Home Venue</p>
-                        <p className="text-sm font-semibold">{sportsDbTeam.strStadium}</p>
-                      </div>
-                    </div>
-                  )}
-                  {sportsDbTeam.strDescriptionEN && (
-                    <div className="pt-2">
-                      <p className="text-xs text-muted-foreground font-medium mb-2">About</p>
-                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-6">
-                        {sportsDbTeam.strDescriptionEN}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
-        {/* Right Column: Fixtures & Squad */}
+        {/* Right Column: Fixtures */}
         <div className="lg:col-span-2 space-y-12">
           
           <div className="space-y-6">
@@ -175,51 +112,6 @@ export default async function TeamPage({ params }: { params: Promise<{ teamId: s
               )}
             </div>
           </div>
-
-          {/* Squad Roster */}
-          {players.length > 0 && (
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 border-b pb-2">
-                <Users className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl font-bold">Official Squad</h2>
-                <Badge variant="secondary" className="ml-2">{players.length} Players</Badge>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {players.map(player => (
-                  <Link href={`/player/${player.idPlayer}`} key={player.idPlayer}>
-                    <Card className="hover:border-primary/50 transition-colors overflow-hidden group cursor-pointer h-full">
-                      <div className="aspect-square bg-muted relative overflow-hidden flex items-end justify-center pt-4">
-                        {player.strCutout ? (
-                          <img 
-                            src={player.strCutout} 
-                            alt={player.strPlayer} 
-                            className="object-contain h-[90%] w-full transform group-hover:scale-105 transition-transform drop-shadow-lg"
-                          />
-                        ) : player.strThumb ? (
-                          <img 
-                            src={player.strThumb} 
-                            alt={player.strPlayer} 
-                            className="object-cover h-full w-full opacity-80 group-hover:opacity-100 transition-opacity"
-                          />
-                        ) : (
-                          <User className="h-12 w-12 text-muted-foreground/50 mb-4" />
-                        )}
-                        {player.strNumber && (
-                          <div className="absolute top-2 left-2 bg-background/80 backdrop-blur-sm px-2 py-0.5 rounded-md text-xs font-bold border">
-                            {player.strNumber}
-                          </div>
-                        )}
-                      </div>
-                      <CardContent className="p-3">
-                        <p className="font-semibold text-sm truncate">{player.strPlayer}</p>
-                        <p className="text-xs text-muted-foreground truncate">{player.strPosition || 'Player'}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
 
         </div>
       </div>

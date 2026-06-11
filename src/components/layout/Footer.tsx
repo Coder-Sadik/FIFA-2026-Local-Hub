@@ -42,7 +42,18 @@ export function Footer() {
         </div>
       </div>
       <div className="container mx-auto px-4 md:px-8 mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-        &copy; {new Date().getFullYear()} World Cup 2026 Hub. All rights reserved.
+        <p>&copy; {new Date().getFullYear()} World Cup 2026 Hub. All rights reserved.</p>
+        <p className="mt-2">
+          Vibe Coded By{' '}
+          <a
+            href="https://github.com/Coder-Sadik"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium hover:text-primary transition-colors"
+          >
+            Sadik Rahman
+          </a>
+        </p>
       </div>
     </footer>
   );

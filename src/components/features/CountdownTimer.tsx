@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getAbsoluteGameDate } from '@/lib/timezone';
 
 interface CountdownTimerProps {
   dateStr: string; // MM/DD/YYYY HH:mm string from API
+  stadiumId?: string;
 }
 
-export function CountdownTimer({ dateStr }: CountdownTimerProps) {
+export function CountdownTimer({ dateStr, stadiumId }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState<string>('');
   const [mounted, setMounted] = useState(false);
 
@@ -14,13 +16,8 @@ export function CountdownTimer({ dateStr }: CountdownTimerProps) {
     // eslint-disable-next-line
     setMounted(true);
     
-    // Parse the date (assume UTC for now as per worldcup26 logic)
-    const [datePart, timePart] = dateStr.split(' ');
-    const [month, day, year] = datePart.split('/');
-    const [hour, minute] = timePart.split(':');
-    
-    // Create Date object assuming the input is UTC
-    const targetDate = new Date(Date.UTC(+year, +month - 1, +day, +hour, +minute));
+    // Get the correct absolute date accounting for stadium timezone
+    const targetDate = getAbsoluteGameDate(dateStr, stadiumId);
 
     const updateCountdown = () => {
       const now = new Date();
@@ -48,7 +45,7 @@ export function CountdownTimer({ dateStr }: CountdownTimerProps) {
     const interval = setInterval(updateCountdown, 60000); // update every minute
 
     return () => clearInterval(interval);
-  }, [dateStr]);
+  }, [dateStr, stadiumId]);
 
   if (!mounted) return <span className="text-muted-foreground">Loading time...</span>;
 

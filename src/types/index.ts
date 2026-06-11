@@ -50,3 +50,22 @@ export interface Standing {
   gd: number;
   points: number;
 }
+
+export interface GroupTeam {
+  _id: string;
+  team_id: string;
+  mp: string;
+  w: string;
+  d: string;
+  l: string;
+  gf: string;
+  ga: string;
+  gd: string;
+  pts: string;
+}
+
+export interface Group {
+  _id: string;
+  name: string;
+  teams: GroupTeam[];
+}

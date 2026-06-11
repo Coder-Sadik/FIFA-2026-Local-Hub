@@ -111,7 +111,7 @@ export function LiveMatchesClient({ initialGames }: LiveMatchesClientProps) {
                       <MatchCard game={match} />
                     </div>
                     <div className="mt-4 p-3 bg-background rounded-lg border inline-block text-sm shadow-sm">
-                      <CountdownTimer dateStr={match.local_date} />
+                      <CountdownTimer dateStr={match.local_date} stadiumId={match.stadium_id} />
                     </div>
                   </div>
                 ))}
@@ -132,7 +132,7 @@ export function LiveMatchesClient({ initialGames }: LiveMatchesClientProps) {
               <div key={game._id} className="space-y-3">
                 <MatchCard game={game} />
                 <div className="flex justify-between px-2 text-sm">
-                  <CountdownTimer dateStr={game.local_date} />
+                  <CountdownTimer dateStr={game.local_date} stadiumId={game.stadium_id} />
                   <span className="text-muted-foreground">
                     <LocalTime date={game.local_date} format="time" stadiumId={game.stadium_id} />
                   </span>
