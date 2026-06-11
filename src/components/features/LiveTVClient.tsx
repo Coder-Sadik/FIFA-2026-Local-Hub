@@ -180,6 +180,28 @@ export function LiveTVClient() {
       default:
         return true;
     }
+  }).sort((a, b) => {
+    // Custom sorting for Football category: FIFA World Cup broadcasters on top
+    if (category === 'Football') {
+      const fifaBroadcasters = ['fox', 'fs1', 'telemundo', 'bbc', 'itv', 'tsn', 'ctv', 'bein', 'supersport', 'sbs', 'optus', 'tf1', 'ard', 'zdf', 'rai', 'rtve', 'tyc', 'directv'];
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+      
+      const aIsFifa = fifaBroadcasters.some(kw => aName.includes(kw));
+      const bIsFifa = fifaBroadcasters.some(kw => bName.includes(kw));
+      
+      if (aIsFifa && !bIsFifa) return -1;
+      if (!aIsFifa && bIsFifa) return 1;
+    }
+    
+    // Sort by group if available, then by name
+    const groupA = (a.group || '').toLowerCase();
+    const groupB = (b.group || '').toLowerCase();
+    
+    if (groupA < groupB) return -1;
+    if (groupA > groupB) return 1;
+    
+    return a.name.localeCompare(b.name);
   });
 
   return (
