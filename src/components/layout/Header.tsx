@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Trophy, Clock } from 'lucide-react';
+import { Search, Trophy, Clock, Menu, X } from 'lucide-react';
 import { Input } from '../ui/input';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,7 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const router = useRouter();
 
@@ -54,6 +55,20 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center px-4 md:px-8 mx-auto">
+        {/* Mobile Menu Toggle & Logo */}
+        <div className="flex items-center md:hidden mr-2">
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 -ml-2 mr-2 text-muted-foreground hover:text-foreground"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+          <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
+            <Trophy className="h-6 w-6 text-primary" />
+          </Link>
+        </div>
+
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Trophy className="h-6 w-6 text-primary" />
@@ -126,6 +141,19 @@ export function Header() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden absolute top-16 left-0 right-0 border-b bg-background/95 backdrop-blur shadow-md animate-in slide-in-from-top-2 fade-in duration-200">
+          <nav className="flex flex-col p-4 space-y-4">
+            <Link href="/fixtures" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium transition-colors hover:text-primary">Fixtures</Link>
+            <Link href="/live" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium transition-colors hover:text-primary">Live</Link>
+            <Link href="/standings" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium transition-colors hover:text-primary">Standings</Link>
+            <Link href="/teams" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium transition-colors hover:text-primary">Teams</Link>
+            <Link href="/bracket" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium transition-colors hover:text-primary">Bracket</Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
