@@ -11,7 +11,7 @@ export default async function Home() {
   // Basic filtering for demo
   const liveGames = allGames.filter(g => g.finished === 'FALSE' && g.time_elapsed !== 'notstarted');
   const upcomingGames = allGames.filter(g => g.time_elapsed === 'notstarted').slice(0, 6);
-  const finishedGames = allGames.filter(g => g.finished === 'TRUE' || g.time_elapsed === 'finished').slice(0, 3);
+  const finishedGames = allGames.filter(g => g.finished === 'TRUE' || g.time_elapsed === 'finished').reverse().slice(0, 3);
 
   return (
     <div className="flex flex-col gap-12 pb-12">

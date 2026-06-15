@@ -10,7 +10,11 @@ export async function getGames(): Promise<Game[]> {
   });
   if (!res.ok) throw new Error('Failed to fetch games');
   const data = await res.json();
-  return data.games || [];
+  const games: Game[] = data.games || [];
+  
+  return games.sort((a, b) => {
+    return new Date(a.local_date).getTime() - new Date(b.local_date).getTime();
+  });
 }
 
 export async function getTeams(): Promise<Team[]> {
