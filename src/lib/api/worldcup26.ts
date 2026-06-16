@@ -6,7 +6,7 @@ const BASE_URL = 'https://worldcup26.ir/get';
 // This significantly reduces API calling costs.
 export async function getGames(): Promise<Game[]> {
   const res = await fetch(`${BASE_URL}/games`, {
-    next: { revalidate: 3600 },
+    next: { revalidate: 60 }, // Revalidate every minute for live results
   });
   if (!res.ok) throw new Error('Failed to fetch games');
   const data = await res.json();
@@ -37,7 +37,7 @@ export async function getStadiums(): Promise<Stadium[]> {
 
 export async function getGroups(): Promise<Group[]> {
   const res = await fetch(`${BASE_URL}/groups`, {
-    next: { revalidate: 3600 },
+    next: { revalidate: 60 }, // Revalidate every minute for live standings
   });
   if (!res.ok) throw new Error('Failed to fetch groups');
   const data = await res.json();
