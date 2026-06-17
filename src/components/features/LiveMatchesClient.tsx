@@ -1,71 +1,72 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Game } from '@/types';
 import { fetchLiveGamesAction } from '@/app/actions/live';
 import { MatchCard } from '@/components/features/MatchCard';
 import { CountdownTimer } from '@/components/features/CountdownTimer';
 import { CalendarDays, Radio } from 'lucide-react';
 import { LocalTime } from '@/components/ui/local-time';
+import { useQuery } from '@tanstack/react-query';
+import { parse } from 'date-fns';
 
 interface LiveMatchesClientProps {
   initialGames: Game[];
 }
 
 export function LiveMatchesClient({ initialGames }: LiveMatchesClientProps) {
-  const [games, setGames] = useState<Game[]>(initialGames);
+  const { data: games = initialGames } = useQuery({
+    queryKey: ['liveGames'],
+    queryFn: async () => {
+      const freshGames = await fetchLiveGamesAction();
+      return freshGames && freshGames.length > 0 ? freshGames : initialGames;
+    },
+    initialData: initialGames,
+    refetchInterval: 30000, // Poll every 30s
+  });
 
-  // Auto-Polling
-  useEffect(() => {
-    const interval = setInterval(async () => {
+  // Pre-calculate timestamps to avoid doing it repeatedly in sorting/filtering
+  const gamesWithTimestamps = useMemo(() => {
+    return games.map(game => {
+      // Date format is likely "MM/DD/YYYY HH:mm" based on previous manual split
+      let timestamp = 0;
       try {
-        const freshGames = await fetchLiveGamesAction();
-        if (freshGames && freshGames.length > 0) {
-          setGames(freshGames);
-        }
+        const parsedDate = parse(game.local_date, 'MM/dd/yyyy HH:mm', new Date());
+        timestamp = parsedDate.getTime();
       } catch (e) {
-        console.error('Polling error', e);
+        // Fallback to naive parse if date format is slightly different
+        timestamp = new Date(game.local_date).getTime();
       }
-    }, 30000); // Poll every 30s
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Parse date string to UTC timestamp for comparisons
-  const getTimestamp = (dateStr: string) => {
-    const [datePart, timePart] = dateStr.split(' ');
-    const [month, day, year] = datePart.split('/');
-    const [hour, minute] = timePart.split(':');
-    return Date.UTC(+year, +month - 1, +day, +hour, +minute);
-  };
+      return { ...game, timestamp };
+    });
+  }, [games]);
 
   const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
   const { liveGames, upcomingToday, nextMatches } = useMemo(() => {
     // eslint-disable-next-line react-hooks/purity
     const now = Date.now();
-    const live = games.filter(g => g.finished === 'FALSE' && g.time_elapsed !== 'notstarted');
+    const live = gamesWithTimestamps.filter(g => g.finished === 'FALSE' && g.time_elapsed !== 'notstarted');
     
     // Sort notstarted games chronologically
-    const notStarted = games
+    const notStarted = gamesWithTimestamps
       .filter(g => g.finished === 'FALSE' && g.time_elapsed === 'notstarted')
-      .sort((a, b) => getTimestamp(a.local_date) - getTimestamp(b.local_date));
+      .sort((a, b) => a.timestamp - b.timestamp);
 
     // Upcoming within 24 hours of "now" (simulated "today" logic)
     const today = notStarted.filter(g => {
-      const ts = getTimestamp(g.local_date);
-      return ts > now && ts < now + ONE_DAY_MS;
+      return g.timestamp > now && g.timestamp < now + ONE_DAY_MS;
     });
 
     // Up Next: Find the timestamp of the very next match, then get ALL matches that start at that exact time
-    let next: Game[] = [];
+    let next: typeof gamesWithTimestamps = [];
     if (notStarted.length > 0) {
-      const nextTimestamp = getTimestamp(notStarted[0].local_date);
-      next = notStarted.filter(g => getTimestamp(g.local_date) === nextTimestamp);
+      const nextTimestamp = notStarted[0].timestamp;
+      next = notStarted.filter(g => g.timestamp === nextTimestamp);
     }
 
     return { liveGames: live, upcomingToday: today, nextMatches: next };
-  }, [games, ONE_DAY_MS]);
+  }, [gamesWithTimestamps, ONE_DAY_MS]);
 
   return (
     <div className="space-y-12">

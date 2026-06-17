@@ -4,31 +4,19 @@ import { Game } from '@/types';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { LocalTime } from '../ui/local-time';
-import { usePreferences } from '@/store/usePreferences';
-import { Star, MapPin } from 'lucide-react';
-import { Button } from '../ui/button';
-import { useState, useEffect } from 'react';
+import { MapPin } from 'lucide-react';
 import { getCountryColor, getFlagUrl } from '@/lib/countries';
 import { getStadiumName } from '@/lib/stadiums';
+import Image from 'next/image';
+import { MatchCardFavoriteStar } from './MatchCardFavoriteStar';
 
 interface MatchCardProps {
   game: Game;
 }
 
 export function MatchCard({ game }: MatchCardProps) {
-  const { favoriteTeams, toggleFavoriteTeam } = usePreferences();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line
-    setMounted(true);
-  }, []);
-  
   const isLive = game.finished === 'FALSE' && game.time_elapsed !== 'notstarted';
   const isFinished = game.finished === 'TRUE' || game.time_elapsed === 'finished';
-  
-  const homeFav = mounted && favoriteTeams.includes(game.home_team_id);
-  const awayFav = mounted && favoriteTeams.includes(game.away_team_id);
 
   const homeColor = getCountryColor(game.home_team_name_en);
   const awayColor = getCountryColor(game.away_team_name_en);
@@ -73,15 +61,12 @@ export function MatchCard({ game }: MatchCardProps) {
           {/* Home Team */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6" 
-                onClick={() => toggleFavoriteTeam(game.home_team_id)}
-              >
-                <Star className={`h-4 w-4 ${homeFav ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}`} />
-              </Button>
-              {homeFlag && <img src={homeFlag} alt="" className="w-8 h-5.5 rounded-sm shadow-sm object-cover" />}
+              <MatchCardFavoriteStar teamId={game.home_team_id} />
+              {homeFlag && (
+                <div className="relative w-8 h-5.5 shrink-0 overflow-hidden rounded-sm shadow-sm">
+                  <Image src={homeFlag} alt={game.home_team_name_en} fill className="object-cover" sizes="32px" />
+                </div>
+              )}
               <span className="font-bold text-lg sm:text-xl truncate max-w-[120px] sm:max-w-[180px]">
                 {game.home_team_name_en}
               </span>
@@ -92,15 +77,12 @@ export function MatchCard({ game }: MatchCardProps) {
           {/* Away Team */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6" 
-                onClick={() => toggleFavoriteTeam(game.away_team_id)}
-              >
-                <Star className={`h-4 w-4 ${awayFav ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}`} />
-              </Button>
-              {awayFlag && <img src={awayFlag} alt="" className="w-8 h-5.5 rounded-sm shadow-sm object-cover" />}
+              <MatchCardFavoriteStar teamId={game.away_team_id} />
+              {awayFlag && (
+                <div className="relative w-8 h-5.5 shrink-0 overflow-hidden rounded-sm shadow-sm">
+                  <Image src={awayFlag} alt={game.away_team_name_en} fill className="object-cover" sizes="32px" />
+                </div>
+              )}
               <span className="font-bold text-lg sm:text-xl truncate max-w-[120px] sm:max-w-[180px]">
                 {game.away_team_name_en}
               </span>

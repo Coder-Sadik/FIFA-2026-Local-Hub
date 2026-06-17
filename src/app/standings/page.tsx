@@ -19,9 +19,11 @@ export default async function StandingsPage() {
   // Sort groups alphabetically by name (A, B, C...)
   const sortedGroups = [...groups].sort((a, b) => a.name.localeCompare(b.name));
 
+  // O(N) setup for fast lookup
+  const teamMap = new Map(teams.map(t => [t.id, t.name_en]));
+
   const getTeamName = (id: string) => {
-    const t = teams.find(team => team.id === id);
-    return t ? t.name_en : `Team ${id}`;
+    return teamMap.get(id) || `Team ${id}`;
   };
 
   return (

@@ -2,44 +2,74 @@ import { Game, Team, Stadium, Group } from '@/types';
 
 const BASE_URL = 'https://worldcup26.ir/get';
 
+async function fetchWithRetry(url: string, options: RequestInit, retries = 3, backoff = 300): Promise<Response> {
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res;
+  } catch (error) {
+    if (retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, backoff));
+      return fetchWithRetry(url, options, retries - 1, backoff * 2);
+    }
+    throw error;
+  }
+}
+
 // Revalidate static data every hour (3600 seconds)
 // This significantly reduces API calling costs.
 export async function getGames(): Promise<Game[]> {
-  const res = await fetch(`${BASE_URL}/games`, {
-    next: { revalidate: 60 }, // Revalidate every minute for live results
-  });
-  if (!res.ok) throw new Error('Failed to fetch games');
-  const data = await res.json();
-  const games: Game[] = data.games || [];
-  
-  return games.sort((a, b) => {
-    return new Date(a.local_date).getTime() - new Date(b.local_date).getTime();
-  });
+  try {
+    const res = await fetchWithRetry(`${BASE_URL}/games`, {
+      next: { revalidate: 60 }, // Revalidate every minute for live results
+    });
+    const data = await res.json();
+    const games: Game[] = data.games || [];
+    
+    return games.sort((a, b) => {
+      return new Date(a.local_date).getTime() - new Date(b.local_date).getTime();
+    });
+  } catch (error) {
+    console.error('Failed to fetch games:', error);
+    return []; // Return empty array as fallback
+  }
 }
 
 export async function getTeams(): Promise<Team[]> {
-  const res = await fetch(`${BASE_URL}/teams`, {
-    next: { revalidate: 3600 * 24 }, // Daily
-  });
-  if (!res.ok) throw new Error('Failed to fetch teams');
-  const data = await res.json();
-  return data.teams || [];
+  try {
+    const res = await fetchWithRetry(`${BASE_URL}/teams`, {
+      next: { revalidate: 3600 * 24 }, // Daily
+    });
+    const data = await res.json();
+    return data.teams || [];
+  } catch (error) {
+    console.error('Failed to fetch teams:', error);
+    return [];
+  }
 }
 
 export async function getStadiums(): Promise<Stadium[]> {
-  const res = await fetch(`${BASE_URL}/stadiums`, {
-    next: { revalidate: 3600 * 24 * 7 }, // Weekly
-  });
-  if (!res.ok) throw new Error('Failed to fetch stadiums');
-  const data = await res.json();
-  return data.stadiums || [];
+  try {
+    const res = await fetchWithRetry(`${BASE_URL}/stadiums`, {
+      next: { revalidate: 3600 * 24 * 7 }, // Weekly
+    });
+    const data = await res.json();
+    return data.stadiums || [];
+  } catch (error) {
+    console.error('Failed to fetch stadiums:', error);
+    return [];
+  }
 }
 
 export async function getGroups(): Promise<Group[]> {
-  const res = await fetch(`${BASE_URL}/groups`, {
-    next: { revalidate: 60 }, // Revalidate every minute for live standings
-  });
-  if (!res.ok) throw new Error('Failed to fetch groups');
-  const data = await res.json();
-  return data.groups || [];
+  try {
+    const res = await fetchWithRetry(`${BASE_URL}/groups`, {
+      next: { revalidate: 60 }, // Revalidate every minute for live standings
+    });
+    const data = await res.json();
+    return data.groups || [];
+  } catch (error) {
+    console.error('Failed to fetch groups:', error);
+    return [];
+  }
 }
