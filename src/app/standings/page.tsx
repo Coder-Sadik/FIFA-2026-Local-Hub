@@ -1,4 +1,5 @@
-import { getGroups, getTeams } from '@/lib/api/worldcup26';
+import { getGroups, getTeams, getGames } from '@/lib/api/worldcup26';
+import { calculateAccurateStandings } from '@/lib/standings';
 import {
   Table,
   TableBody,
@@ -14,10 +15,14 @@ export const metadata = {
 };
 
 export default async function StandingsPage() {
-  const [groups, teams] = await Promise.all([getGroups(), getTeams()]);
+  const [rawGroups, teams, games] = await Promise.all([getGroups(), getTeams(), getGames()]);
   
+  // The API's 'groups' endpoint has a bug where it maps scores to W/D/L incorrectly (e.g., 3-1 win sets W to 3)
+  // We calculate the accurate standings client-side from the source-of-truth games array
+  const accurateGroups = calculateAccurateStandings(rawGroups, games);
+
   // Sort groups alphabetically by name (A, B, C...)
-  const sortedGroups = [...groups].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedGroups = [...accurateGroups].sort((a, b) => a.name.localeCompare(b.name));
 
   // O(N) setup for fast lookup
   const teamMap = new Map(teams.map(t => [t.id, t.name_en]));

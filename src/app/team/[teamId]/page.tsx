@@ -1,4 +1,5 @@
 import { getTeams, getGames, getGroups } from '@/lib/api/worldcup26';
+import { calculateAccurateStandings } from '@/lib/standings';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MatchCard } from '@/components/features/MatchCard';
@@ -15,8 +16,11 @@ export default async function TeamPage({ params }: { params: Promise<{ teamId: s
 
   const teamGames = games.filter(g => g.home_team_id === team.id || g.away_team_id === team.id);
   
+  // Calculate accurate standings due to API bug
+  const accurateGroups = calculateAccurateStandings(groups, games);
+
   // Find group standing info
-  const groupData = groups.find(g => g.name === team.groups);
+  const groupData = accurateGroups.find(g => g.name === team.groups);
   const standing = groupData?.teams.find((t: { team_id: string }) => t.team_id === team.id);
 
   const teamColor = getCountryColor(team.name_en);
