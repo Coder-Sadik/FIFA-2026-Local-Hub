@@ -81,6 +81,7 @@ export function Header() {
             <Link href="/live" className="transition-colors hover:text-foreground/80 text-foreground/60">Live</Link>
             <Link href="/standings" className="transition-colors hover:text-foreground/80 text-foreground/60">Standings</Link>
             <Link href="/teams" className="transition-colors hover:text-foreground/80 text-foreground/60">Teams</Link>
+            <Link href="/top-scorers" className="transition-colors hover:text-foreground/80 text-yellow-600 dark:text-yellow-500 font-semibold flex items-center gap-1"><Trophy className="w-3 h-3"/> Top Scorers</Link>
             <Link href="/bracket" className="transition-colors hover:text-foreground/80 text-primary font-semibold">Bracket</Link>
           </nav>
         </div>
@@ -150,6 +151,7 @@ export function Header() {
             <Link href="/live" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium transition-colors hover:text-primary">Live</Link>
             <Link href="/standings" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium transition-colors hover:text-primary">Standings</Link>
             <Link href="/teams" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium transition-colors hover:text-primary">Teams</Link>
+            <Link href="/top-scorers" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium transition-colors hover:text-primary text-yellow-600 dark:text-yellow-500">Top Scorers</Link>
             <Link href="/bracket" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium transition-colors hover:text-primary">Bracket</Link>
           </nav>
         </div>

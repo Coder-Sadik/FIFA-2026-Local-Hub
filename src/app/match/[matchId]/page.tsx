@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LocalTime } from '@/components/ui/local-time';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Share2 } from 'lucide-react';
+import { Share2, TypeIcon as Goal } from 'lucide-react';
+import { parseScorersStr } from '@/lib/scorers';
 
 export default async function MatchDetailsPage({ params }: { params: { matchId: string } }) {
   const [games, stadiums] = await Promise.all([getGames(), getStadiums()]);
@@ -17,6 +18,10 @@ export default async function MatchDetailsPage({ params }: { params: { matchId: 
   const stadium = stadiums.find(s => s.id === game.stadium_id);
   const isLive = game.finished === 'FALSE' && game.time_elapsed !== 'notstarted';
   const isFinished = game.finished === 'TRUE' || game.time_elapsed === 'finished';
+
+  const homeScorers = parseScorersStr(game.home_scorers, 'home');
+  const awayScorers = parseScorersStr(game.away_scorers, 'away');
+  const allScorers = [...homeScorers, ...awayScorers].sort((a, b) => a.minute - b.minute);
 
   return (
     <div className="container mx-auto px-4 md:px-8 py-8 md:py-12 max-w-5xl">
@@ -59,11 +64,28 @@ export default async function MatchDetailsPage({ params }: { params: { matchId: 
             </CardHeader>
             <CardContent>
               {isFinished || isLive ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  Detailed timeline events are retrieved via the Match Results API in production.
-                  <br />
-                  <span className="text-xs">Goals: {game.home_scorers} | {game.away_scorers}</span>
-                </div>
+                allScorers.length > 0 ? (
+                  <div className="relative border-l-2 border-border ml-4 md:ml-1/2 md:translate-x-[calc(50%-1px)] space-y-8 py-4">
+                    {allScorers.map((scorer, i) => (
+                      <div key={i} className={`relative flex items-center md:w-[200vw] md:-ml-[100vw] ${scorer.team === 'home' ? 'md:justify-start' : 'md:justify-end'}`}>
+                        {/* Dot indicator */}
+                        <div className="absolute left-[-9px] md:left-1/2 md:-ml-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-primary ring-4 ring-background z-10" />
+                        
+                        {/* Content */}
+                        <div className={`w-full md:w-1/2 flex items-center gap-4 pl-8 md:pl-0 ${scorer.team === 'home' ? 'md:pr-12 md:justify-end md:flex-row' : 'md:pl-12 md:flex-row-reverse md:justify-end'}`}>
+                          <div className={`flex flex-col ${scorer.team === 'home' ? 'md:text-right' : 'text-left md:text-left'}`}>
+                            <span className="font-bold">{scorer.name}</span>
+                            <span className="text-sm text-muted-foreground flex items-center gap-1 mt-1 justify-start md:justify-end">
+                              <Goal className="w-3 h-3 text-primary" /> {scorer.time} {scorer.isPenalty && '(Penalty)'} {scorer.isOwnGoal && '(Own Goal)'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">No goals recorded for this match.</div>
+                )
               ) : (
                 <div className="text-center py-12 text-muted-foreground">Match has not started yet.</div>
               )}

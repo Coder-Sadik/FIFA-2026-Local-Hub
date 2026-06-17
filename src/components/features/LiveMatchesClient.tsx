@@ -33,7 +33,7 @@ export function LiveMatchesClient({ initialGames }: LiveMatchesClientProps) {
       try {
         const parsedDate = parse(game.local_date, 'MM/dd/yyyy HH:mm', new Date());
         timestamp = parsedDate.getTime();
-      } catch (e) {
+      } catch {
         // Fallback to naive parse if date format is slightly different
         timestamp = new Date(game.local_date).getTime();
       }
