@@ -14,6 +14,8 @@ interface LiveMatchesClientProps {
   initialGames: Game[];
 }
 
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
 export function LiveMatchesClient({ initialGames }: LiveMatchesClientProps) {
   const { data: games = initialGames } = useQuery({
     queryKey: ['liveGames'],
@@ -41,16 +43,13 @@ export function LiveMatchesClient({ initialGames }: LiveMatchesClientProps) {
     });
   }, [games]);
 
-  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-
   const { liveGames, upcomingToday, nextMatches } = useMemo(() => {
-    // eslint-disable-next-line react-hooks/purity
     const now = Date.now();
     const live = gamesWithTimestamps.filter(g => g.finished === 'FALSE' && g.time_elapsed !== 'notstarted');
     
     // Sort notstarted games chronologically
     const notStarted = gamesWithTimestamps
-      .filter(g => g.finished === 'FALSE' && g.time_elapsed === 'notstarted')
+      .filter(g => g.finished === 'FALSE' && g.time_elapsed === 'notstarted' && g.timestamp > now - 4 * 60 * 60 * 1000)
       .sort((a, b) => a.timestamp - b.timestamp);
 
     // Upcoming within 24 hours of "now" (simulated "today" logic)
@@ -66,7 +65,7 @@ export function LiveMatchesClient({ initialGames }: LiveMatchesClientProps) {
     }
 
     return { liveGames: live, upcomingToday: today, nextMatches: next };
-  }, [gamesWithTimestamps, ONE_DAY_MS]);
+  }, [gamesWithTimestamps]);
 
   return (
     <div className="space-y-12">

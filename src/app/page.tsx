@@ -1,4 +1,5 @@
 import { getGames } from '@/lib/api/worldcup26';
+import { getAbsoluteGameDate } from '@/lib/timezone';
 import { MatchCard } from '@/components/features/MatchCard';
 import { FavoriteMatches } from '@/components/features/FavoriteMatches';
 import Link from 'next/link';
@@ -8,9 +9,13 @@ import { ArrowRight, Activity } from 'lucide-react';
 export default async function Home() {
   const allGames = await getGames();
   
-  // Basic filtering for demo
+  const now = Date.now();
   const liveGames = allGames.filter(g => g.finished === 'FALSE' && g.time_elapsed !== 'notstarted');
-  const upcomingGames = allGames.filter(g => g.time_elapsed === 'notstarted').slice(0, 6);
+  const upcomingGames = allGames.filter(g => {
+    if (g.time_elapsed !== 'notstarted') return false;
+    const gameTime = getAbsoluteGameDate(g.local_date, g.stadium_id).getTime();
+    return gameTime > now - 4 * 60 * 60 * 1000;
+  }).slice(0, 6);
   const finishedGames = allGames.filter(g => g.finished === 'TRUE' || g.time_elapsed === 'finished').reverse().slice(0, 3);
 
   return (

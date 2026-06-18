@@ -3,6 +3,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Game } from '@/types';
+import { getAbsoluteGameDate } from '@/lib/timezone';
+import { getStadiumName } from '@/lib/stadiums';
 import { MatchCard } from '@/components/features/MatchCard';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -49,7 +51,7 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
           game.home_team_name_en?.toLowerCase().includes(query) ||
           game.away_team_name_en?.toLowerCase().includes(query) ||
           game.group?.toLowerCase().includes(query) ||
-          game.stadium_id?.toString().includes(query);
+          getStadiumName(game.stadium_id).toLowerCase().includes(query);
         if (!matchesSearch) return false;
       }
       
@@ -61,7 +63,16 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
       // Status Filter
       if (statusFilter !== 'ALL') {
         const isLive = game.finished === 'FALSE' && game.time_elapsed !== 'notstarted';
-        const isFinished = game.finished === 'TRUE' || game.time_elapsed === 'finished';
+        let isFinished = game.finished === 'TRUE' || game.time_elapsed === 'finished';
+        
+        // If it's supposedly "notstarted" but > 4 hours in the past, treat it as finished
+        if (!isLive && !isFinished) {
+          const gameTime = getAbsoluteGameDate(game.local_date, game.stadium_id).getTime();
+          if (gameTime < Date.now() - 4 * 60 * 60 * 1000) {
+            isFinished = true;
+          }
+        }
+        
         const isUpcoming = !isLive && !isFinished;
         
         if (statusFilter === 'LIVE' && !isLive) return false;
@@ -73,7 +84,7 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
     });
   }, [initialGames, search, groupFilter, statusFilter, showFavorites, favoriteTeams, mounted]);
 
-  const uniqueGroups = Array.from(new Set(initialGames.map(g => g.group))).sort();
+  const uniqueGroups = Array.from(new Set(initialGames.map(g => g.group))).filter(Boolean).sort() as string[];
 
   return (
     <div className="space-y-8">

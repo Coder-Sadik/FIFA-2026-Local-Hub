@@ -18,7 +18,7 @@ export const COUNTRY_DATA: Record<string, { code: string; color: string }> = {
   'Senegal': { code: 'sn', color: '#00853F' },
   'Japan': { code: 'jp', color: '#000555' },
   'South Korea': { code: 'kr', color: '#0047A0' },
-  'Australia': { code: 'au', color: '#008751' },
+  'Australia': { code: 'au', color: '#FFCD00' },
   'Morocco': { code: 'ma', color: '#C1272D' },
   'Switzerland': { code: 'ch', color: '#FF0000' },
   'Ecuador': { code: 'ec', color: '#FFDD00' },

@@ -148,11 +148,14 @@ export function LiveTVClient() {
       });
     }
     else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
-      videoRef.current.src = activeChannel.url;
-      videoRef.current.addEventListener('loadedmetadata', () => {
+      const videoEl = videoRef.current;
+      videoEl.src = activeChannel.url;
+      const onLoadedMetadata = () => {
         setIsVideoLoading(false);
-        videoRef.current?.play().catch(() => {});
-      });
+        videoEl.play().catch(() => {});
+      };
+      videoEl.addEventListener('loadedmetadata', onLoadedMetadata);
+      return () => videoEl.removeEventListener('loadedmetadata', onLoadedMetadata);
     }
   }, [activeChannel]);
 

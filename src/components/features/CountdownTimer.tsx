@@ -19,16 +19,20 @@ export function CountdownTimer({ dateStr, stadiumId }: CountdownTimerProps) {
     // Get the correct absolute date accounting for stadium timezone
     const targetDate = getAbsoluteGameDate(dateStr, stadiumId);
 
+    let interval: ReturnType<typeof setInterval>;
+
     const updateCountdown = () => {
       const now = new Date();
       const diffMs = targetDate.getTime() - now.getTime();
 
       if (diffMs <= 0) {
         setTimeLeft('Starting shortly');
+        clearInterval(interval);
         return;
       }
 
-      const diffMins = Math.floor(diffMs / 1000 / 60);
+      const diffSecs = Math.floor(diffMs / 1000);
+      const diffMins = Math.floor(diffSecs / 60);
       const diffHours = Math.floor(diffMins / 60);
       const diffDays = Math.floor(diffHours / 24);
 
@@ -36,13 +40,15 @@ export function CountdownTimer({ dateStr, stadiumId }: CountdownTimerProps) {
         setTimeLeft(`Starts in ${diffDays}d ${diffHours % 24}h`);
       } else if (diffHours > 0) {
         setTimeLeft(`Starts in ${diffHours}h ${diffMins % 60}m`);
-      } else {
+      } else if (diffMins > 0) {
         setTimeLeft(`Starting in ${diffMins} mins`);
+      } else {
+        setTimeLeft('Starting shortly');
       }
     };
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 60000); // update every minute
+    interval = setInterval(updateCountdown, 60000); // update every minute
 
     return () => clearInterval(interval);
   }, [dateStr, stadiumId]);

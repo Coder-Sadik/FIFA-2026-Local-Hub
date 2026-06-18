@@ -9,6 +9,7 @@ import { getCountryColor, getFlagUrl } from '@/lib/countries';
 import { getStadiumName } from '@/lib/stadiums';
 import Image from 'next/image';
 import { MatchCardFavoriteStar } from './MatchCardFavoriteStar';
+import { getAbsoluteGameDate } from '@/lib/timezone';
 
 interface MatchCardProps {
   game: Game;
@@ -16,7 +17,14 @@ interface MatchCardProps {
 
 export function MatchCard({ game }: MatchCardProps) {
   const isLive = game.finished === 'FALSE' && game.time_elapsed !== 'notstarted';
-  const isFinished = game.finished === 'TRUE' || game.time_elapsed === 'finished';
+  let isFinished = game.finished === 'TRUE' || game.time_elapsed === 'finished';
+
+  if (!isLive && !isFinished) {
+    const gameTime = getAbsoluteGameDate(game.local_date, game.stadium_id).getTime();
+    if (gameTime < Date.now() - 4 * 60 * 60 * 1000) {
+      isFinished = true;
+    }
+  }
 
   const homeColor = getCountryColor(game.home_team_name_en);
   const awayColor = getCountryColor(game.away_team_name_en);

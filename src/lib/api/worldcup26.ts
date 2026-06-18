@@ -1,4 +1,5 @@
 import { Game, Team, Stadium, Group } from '@/types';
+import { getAbsoluteGameDate } from '@/lib/timezone';
 
 const BASE_URL = 'https://worldcup26.ir/get';
 
@@ -27,7 +28,7 @@ export async function getGames(): Promise<Game[]> {
     const games: Game[] = data.games || [];
     
     return games.sort((a, b) => {
-      return new Date(a.local_date).getTime() - new Date(b.local_date).getTime();
+      return getAbsoluteGameDate(a.local_date, a.stadium_id).getTime() - getAbsoluteGameDate(b.local_date, b.stadium_id).getTime();
     });
   } catch (error) {
     console.error('Failed to fetch games:', error);

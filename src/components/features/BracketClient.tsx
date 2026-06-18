@@ -37,9 +37,13 @@ const getFeederIds = (game: Game): [string | null, string | null] => {
 
 const buildColumnOrder = (rootId: string, allGames: Game[]) => {
   const columns: Game[][] = [[], [], [], []]; // [SF, QF, R16, R32]
+  const visited = new Set<string>();
   const traverse = (currentId: string, depth: number) => {
+    // Guard: don't exceed column bounds or revisit nodes (cycle protection)
+    if (depth >= columns.length || visited.has(currentId)) return;
     const game = allGames.find(g => g.id === currentId);
     if (!game) return;
+    visited.add(currentId);
     const [h, a] = getFeederIds(game);
     if (h) traverse(h, depth + 1);
     if (a) traverse(a, depth + 1);

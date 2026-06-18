@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Share2, TypeIcon as Goal } from 'lucide-react';
 import { parseScorersStr } from '@/lib/scorers';
+import { getAbsoluteGameDate } from '@/lib/timezone';
 
 export default async function MatchDetailsPage({ params }: { params: { matchId: string } }) {
   const [games, stadiums] = await Promise.all([getGames(), getStadiums()]);
@@ -17,7 +18,14 @@ export default async function MatchDetailsPage({ params }: { params: { matchId: 
 
   const stadium = stadiums.find(s => s.id === game.stadium_id);
   const isLive = game.finished === 'FALSE' && game.time_elapsed !== 'notstarted';
-  const isFinished = game.finished === 'TRUE' || game.time_elapsed === 'finished';
+  let isFinished = game.finished === 'TRUE' || game.time_elapsed === 'finished';
+
+  if (!isLive && !isFinished) {
+    const gameTime = getAbsoluteGameDate(game.local_date, game.stadium_id).getTime();
+    if (gameTime < Date.now() - 4 * 60 * 60 * 1000) {
+      isFinished = true;
+    }
+  }
 
   const homeScorers = parseScorersStr(game.home_scorers, 'home');
   const awayScorers = parseScorersStr(game.away_scorers, 'away');
