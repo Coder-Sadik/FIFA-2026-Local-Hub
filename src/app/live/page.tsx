@@ -1,7 +1,7 @@
 import { getGames } from '@/lib/api/worldcup26';
 import { LiveMatchesClient } from '@/components/features/LiveMatchesClient';
-import { LiveTVClient } from '@/components/features/LiveTVClient';
-import { Radio, Tv } from 'lucide-react';
+import { LiveStreamSection } from '@/components/features/LiveStreamSection';
+import { Radio } from 'lucide-react';
 
 export const metadata = {
   title: 'Live Matches | FIFA 2026',
@@ -23,13 +23,7 @@ export default async function LivePage() {
         </p>
       </div>
 
-      <div className="mb-16">
-        <h2 className="text-2xl font-bold flex items-center gap-2 mb-6">
-          <Tv className="w-6 h-6 text-primary" />
-          Live TV Streams
-        </h2>
-        <LiveTVClient />
-      </div>
+      <LiveStreamSection />
 
       <div className="mb-8">
          <h2 className="text-2xl font-bold flex items-center gap-2 mb-6">
