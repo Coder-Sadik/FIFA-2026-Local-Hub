@@ -19,6 +19,7 @@ export function CountdownTimer({ dateStr, stadiumId }: CountdownTimerProps) {
     // Get the correct absolute date accounting for stadium timezone
     const targetDate = getAbsoluteGameDate(dateStr, stadiumId);
 
+    // eslint-disable-next-line prefer-const
     let interval: ReturnType<typeof setInterval>;
 
     const updateCountdown = () => {

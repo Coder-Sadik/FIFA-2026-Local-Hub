@@ -9,6 +9,7 @@ import { ArrowRight, Activity } from 'lucide-react';
 export default async function Home() {
   const allGames = await getGames();
   
+  // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
   const liveGames = allGames.filter(g => g.finished === 'FALSE' && g.time_elapsed !== 'notstarted');
   const upcomingGames = allGames.filter(g => {

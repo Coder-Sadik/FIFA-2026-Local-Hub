@@ -44,6 +44,7 @@ export function LiveMatchesClient({ initialGames }: LiveMatchesClientProps) {
   }, [games]);
 
   const { liveGames, upcomingToday, nextMatches } = useMemo(() => {
+    // eslint-disable-next-line react-hooks/purity
     const now = Date.now();
     const live = gamesWithTimestamps.filter(g => g.finished === 'FALSE' && g.time_elapsed !== 'notstarted');
     

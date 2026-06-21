@@ -22,6 +22,7 @@ export default async function MatchDetailsPage({ params }: { params: { matchId: 
 
   if (!isLive && !isFinished) {
     const gameTime = getAbsoluteGameDate(game.local_date, game.stadium_id).getTime();
+    // eslint-disable-next-line react-hooks/purity
     if (gameTime < Date.now() - 4 * 60 * 60 * 1000) {
       isFinished = true;
     }

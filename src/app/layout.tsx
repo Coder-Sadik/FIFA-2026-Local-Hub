@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { getTeams } from "@/lib/api/worldcup26";
+import { AutoRefresh } from "@/components/features/AutoRefresh";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,7 @@ export default async function RootLayout({
       >
         <QueryProvider>
           <ThemeProvider teams={teams}>
+            <AutoRefresh />
             <Header />
             <main className="flex-1">
               {children}
