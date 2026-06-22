@@ -26,7 +26,6 @@ export function Footer() {
         <div>
           <h4 className="font-semibold mb-4">Community</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link href="/predictions" className="hover:text-primary">Match Predictor</Link></li>
             <li><Link href="/favorites" className="hover:text-primary">My Favorites</Link></li>
           </ul>
         </div>
