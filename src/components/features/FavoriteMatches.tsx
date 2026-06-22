@@ -15,9 +15,22 @@ export function FavoriteMatches({ allGames }: { allGames: Game[] }) {
 
   if (!mounted || favoriteTeams.length === 0) return null;
 
-  const favGames = allGames.filter(
-    g => favoriteTeams.includes(g.home_team_id) || favoriteTeams.includes(g.away_team_id)
-  );
+  const favGames = allGames
+    .filter(g => favoriteTeams.includes(g.home_team_id) || favoriteTeams.includes(g.away_team_id))
+    .sort((a, b) => {
+      const getStatus = (g: Game) => {
+        const isLive = g.finished === 'FALSE' && g.time_elapsed !== 'notstarted';
+        const isFinished = g.finished === 'TRUE' || g.time_elapsed === 'finished';
+        return isLive ? 0 : isFinished ? 1 : 2;
+      };
+      const sa = getStatus(a);
+      const sb = getStatus(b);
+      if (sa !== sb) return sa - sb; // live first, then finished, then upcoming
+      // Within finished: newest first. Within others: chronological.
+      const ta = new Date(a.local_date).getTime();
+      const tb = new Date(b.local_date).getTime();
+      return sa === 1 ? tb - ta : ta - tb;
+    });
 
   if (favGames.length === 0) return null;
 

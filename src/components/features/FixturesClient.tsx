@@ -36,7 +36,7 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
   }, [searchParams]);
 
   const filteredGames = useMemo(() => {
-    return initialGames.filter((game) => {
+    const filtered = initialGames.filter((game) => {
       // Favorites Filter
       if (mounted && showFavorites) {
         if (!favoriteTeams.includes(game.home_team_id) && !favoriteTeams.includes(game.away_team_id)) {
@@ -82,6 +82,29 @@ export function FixturesClient({ initialGames }: FixturesClientProps) {
       }
 
       return true;
+    });
+
+    // Sort: finished → newest first; upcoming → oldest first; live → top
+    return filtered.sort((a, b) => {
+      const getStatus = (g: Game) => {
+        const isLive = g.finished === 'FALSE' && g.time_elapsed !== 'notstarted';
+        const isFinished =
+          g.finished === 'TRUE' ||
+          g.time_elapsed === 'finished' ||
+          getAbsoluteGameDate(g.local_date, g.stadium_id).getTime() < Date.now() - 4 * 60 * 60 * 1000;
+        return isLive ? 0 : isFinished ? 1 : 2;
+      };
+
+      const sa = getStatus(a);
+      const sb = getStatus(b);
+
+      if (sa !== sb) return sa - sb; // live < finished < upcoming
+
+      const ta = getAbsoluteGameDate(a.local_date, a.stadium_id).getTime();
+      const tb = getAbsoluteGameDate(b.local_date, b.stadium_id).getTime();
+
+      // Finished: newest first (descending). Upcoming/live: oldest first (ascending).
+      return sa === 1 ? tb - ta : ta - tb;
     });
   }, [initialGames, search, groupFilter, statusFilter, showFavorites, favoriteTeams, mounted]);
 

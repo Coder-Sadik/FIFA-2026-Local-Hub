@@ -2,6 +2,7 @@ import { getGames } from '@/lib/api/worldcup26';
 import { getAbsoluteGameDate } from '@/lib/timezone';
 import { MatchCard } from '@/components/features/MatchCard';
 import { FavoriteMatches } from '@/components/features/FavoriteMatches';
+import { AutoRefresh } from '@/components/features/AutoRefresh';
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
 import { ArrowRight, Activity } from 'lucide-react';
@@ -21,6 +22,8 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col gap-12 pb-12">
+      {/* Auto-refresh: normal 60 s polling; faster 5 s retry when API returned no data (404) */}
+      <AutoRefresh interval={60_000} triggerOnEmpty={allGames.length === 0} emptyRetryDelay={5_000} />
       {/* Hero Section */}
       <section className="relative h-[500px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-emerald-900 to-blue-900 opacity-80" />

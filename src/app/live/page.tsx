@@ -1,6 +1,7 @@
 import { getGames } from '@/lib/api/worldcup26';
 import { LiveMatchesClient } from '@/components/features/LiveMatchesClient';
 import { LiveStreamSection } from '@/components/features/LiveStreamSection';
+import { AutoRefresh } from '@/components/features/AutoRefresh';
 import { Radio } from 'lucide-react';
 
 export const metadata = {
@@ -13,6 +14,8 @@ export default async function LivePage() {
 
   return (
     <div className="container mx-auto px-4 md:px-8 py-8 md:py-12 max-w-7xl">
+      {/* 30 s normal refresh; on API-404 retry every 5 s until data returns */}
+      <AutoRefresh interval={30_000} triggerOnEmpty={games.length === 0} emptyRetryDelay={5_000} />
       <div className="mb-8 border-b pb-6">
         <h1 className="text-4xl md:text-5xl font-black flex items-center gap-4">
           <Radio className="h-10 w-10 text-primary animate-pulse" />
