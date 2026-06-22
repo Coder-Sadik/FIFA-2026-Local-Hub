@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { DisableDevTools } from "@/components/providers/DisableDevTools";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { getTeams } from "@/lib/api/worldcup26";
 import { AutoRefresh } from "@/components/features/AutoRefresh";
@@ -30,6 +31,7 @@ export default async function RootLayout({
         className={`${inter.className} antialiased min-h-screen flex flex-col bg-background text-foreground`}
         suppressHydrationWarning
       >
+        <DisableDevTools />
         <QueryProvider>
           <ThemeProvider teams={teams}>
             <AutoRefresh />
