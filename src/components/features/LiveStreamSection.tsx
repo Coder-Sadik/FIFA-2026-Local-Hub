@@ -32,7 +32,7 @@ export function LiveStreamSection() {
            <MonitorPlay className="w-20 h-20 text-muted-foreground mb-6 opacity-20" />
            <h3 className="text-2xl font-bold mb-4">External Stream Selected</h3>
            <p className="text-muted-foreground max-w-md mb-8">
-             This stream provider (LiveKhelaTV) doesn't allow embedding on other websites. You'll need to open it in a new tab to watch.
+             This stream provider (LiveKhelaTV) doesn&apos;t allow embedding on other websites. You&apos;ll need to open it in a new tab to watch.
            </p>
            <a 
              href="https://livekhelatv.com/" 
